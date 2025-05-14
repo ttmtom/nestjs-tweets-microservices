@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { TweetsModule } from './tweets.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import tweetsConfig from '../../../libs/contracts/tweets/configs/tweets.config';
+import { appConfig } from './config';
+import { TweetsModule } from './tweets.module';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -9,7 +9,7 @@ async function bootstrap() {
     {
       transport: Transport.TCP,
       options: {
-        port: tweetsConfig.port,
+        port: appConfig.get('port'),
       },
     },
   );

@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  auth-service-db:
+    image: postgres:17
+    ports:
+      - "${AUTH_DB_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USERNAME}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD:  trust
+    env_file: "./.env"
+    volumes:
+      - ./apps/auth/conf/postgres/:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  user-service-db:
+    image: postgres:17
+    ports:
+      - "${USER_DB_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${USER_DB_USERNAME}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    env_file: "./.env"
+    volumes:
+      - ./apps/users/conf/postgres/:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
