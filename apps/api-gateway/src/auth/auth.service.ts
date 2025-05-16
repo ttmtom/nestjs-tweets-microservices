@@ -48,7 +48,10 @@ export class AuthService {
       );
       return response;
     } catch (error) {
-      console.error('Error from AUTH_SERVICE:', JSON.stringify(error, null, 2));
+      this.logger.error(
+        'Error from AUTH_SERVICE:',
+        JSON.stringify(error, null, 2),
+      );
 
       const errPayload = error as ErrorResponse;
       throw new HttpException(
@@ -74,7 +77,10 @@ export class AuthService {
       );
       return response;
     } catch (error) {
-      console.error('Error from AUTH_SERVICE:', JSON.stringify(error, null, 2));
+      this.logger.error(
+        'Error from AUTH_SERVICE:',
+        JSON.stringify(error, null, 2),
+      );
 
       const errPayload = error as ErrorResponse;
       throw new HttpException(

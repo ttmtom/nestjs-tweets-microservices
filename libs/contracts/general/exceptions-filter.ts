@@ -26,7 +26,7 @@ export class MicroserviceAllExceptionsFilter
     this.logger.error(
       `Microservice Exception Caught: ${exception?.message || JSON.stringify(exception)}`,
       exception?.stack,
-      `Context: ${host.getType()}`, // Will be 'rpc'
+      `Context: ${host.getType()}`,
     );
 
     if (exception instanceof HttpException) {
@@ -37,18 +37,15 @@ export class MicroserviceAllExceptionsFilter
       } else if (typeof errorResponse === 'object' && errorResponse !== null) {
         const res = errorResponse as any;
         message = res.message || exception.message;
-        // Handle NestJS validation pipe errors which put details in 'message' array
         if (Array.isArray(res.message) && res.error === 'Bad Request') {
           errors = res.message;
-          message = 'Validation failed'; // Or a more generic message
+          message = 'Validation failed';
         } else {
           errors = res.errors;
         }
         code = res.code || res.error;
       }
     } else if (exception instanceof RpcException) {
-      // If it's already an RpcException, it might be formatted.
-      // You can choose to trust its format or re-format it.
       const rpcError = exception.getError();
       if (typeof rpcError === 'string') {
         message = rpcError;
@@ -61,16 +58,13 @@ export class MicroserviceAllExceptionsFilter
       }
     } else if (exception instanceof Error) {
       message = exception.message;
-      // Avoid sending full stack traces over the wire unless for specific debug scenarios
     } else if (typeof exception === 'object' && exception !== null) {
-      // Attempt to extract details if it's a plain error object
       message = (exception as any).message || message;
       status =
         (exception as any).status || (exception as any).statusCode || status;
       errors = (exception as any).errors || errors;
       code = (exception as any).code || code;
     }
-    // else: handle other unknown exception types
 
     const errorPayload: ErrorResponse = {
       success: false,
@@ -81,8 +75,6 @@ export class MicroserviceAllExceptionsFilter
       timestamp: new Date().toISOString(),
     };
 
-    // This is crucial: return an Observable that emits an error.
-    // The 'errorPayload' will be the object received by the calling service's 'catchError' or try/catch.
     return throwError(() => errorPayload);
   }
 }
