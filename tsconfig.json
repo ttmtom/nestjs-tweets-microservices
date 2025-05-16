@@ -17,12 +17,13 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "moduleResolution": "node",
     "paths": {
-      "@app/contracts": [
-        "libs/contracts/src"
+      "@libs/contracts": [
+        "libs/contracts"
       ],
-      "@app/contracts/*": [
-        "libs/contracts/src/*"
+      "@libs/contracts/*": [
+        "libs/contracts/*"
       ]
     }
   }

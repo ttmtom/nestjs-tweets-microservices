@@ -1,4 +1,4 @@
 export const AUTH_PATTERN = {
-  USER_LOGIN: 'user.login',
-  USER_REGISTER: 'user.register',
+  AUTH_LOGIN: 'auth.login',
+  AUTH_REGISTER: 'auth.register',
 };

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Permission, Role, RolePermission, UserCredentials } from './entities';
+import { UserCredential } from './entities';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { Permission, Role, RolePermission, UserCredentials } from './entities';
         username: configService.get('AUTH_DB_USERNAME'),
         password: configService.get('AUTH_DB_PASSWORD'),
         database: 'postgres',
-        entities: [Role, Permission, RolePermission, UserCredentials],
+        entities: [UserCredential],
       }),
     }),
   ],

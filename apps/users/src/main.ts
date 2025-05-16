@@ -1,16 +1,26 @@
+import { MicroserviceAllExceptionsFilter } from '@libs/contracts/general/exceptions-filter';
+import * as usersServiceConfig from '@libs/contracts/users/users.config';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { appConfig } from './config';
-import { UsersModule } from './users.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    UsersModule,
+    AppModule,
     {
       transport: Transport.TCP,
-      options: { port: appConfig.get('port') },
+      options: { port: usersServiceConfig.SERVICE_PORT },
     },
   );
+
+  app.useGlobalPipes(new ValidationPipe());
+
+  // const reflector = app.get(Reflector);
+  // app.useGlobalInterceptors(new EventResponseWrapperInterceptor(reflector));
+  //
+  app.useGlobalFilters(new MicroserviceAllExceptionsFilter());
+
   await app.listen();
 }
 
