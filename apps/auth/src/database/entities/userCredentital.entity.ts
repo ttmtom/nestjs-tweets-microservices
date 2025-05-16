@@ -1,4 +1,4 @@
-import { UserRole } from '@libs/contracts/auth/types/user-role.type';
+import { EUserRole } from '@libs/contracts/auth/enums';
 import {
   Column,
   CreateDateColumn,
@@ -20,10 +20,10 @@ export class UserCredential {
 
   @Column({
     type: 'enum',
-    enum: UserRole,
-    default: UserRole.USER,
+    enum: EUserRole,
+    default: EUserRole.USER,
   })
-  role: UserRole;
+  role: EUserRole;
 
   @CreateDateColumn({ type: 'date', name: 'created_at' })
   createdAt: Date;
@@ -31,9 +31,9 @@ export class UserCredential {
   @UpdateDateColumn({ type: 'date', name: 'updated_at' })
   updatedAt: Date;
 
-  constructor(userId: string, hashedPassword: string, role?: UserRole) {
+  constructor(userId: string, hashedPassword: string, role?: EUserRole) {
     this.userId = userId;
     this.hashedPassword = hashedPassword;
-    this.role = role || UserRole.USER;
+    this.role = role || EUserRole.USER;
   }
 }

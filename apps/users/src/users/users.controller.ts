@@ -1,6 +1,8 @@
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
+import { GetByUsernameDto } from '@libs/contracts/users/dto/get-by-username.dto';
 import { RegisterUserDto } from '@libs/contracts/users/dto/register-user.dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
+import { GetByUsernameResponse } from '@libs/contracts/users/response';
 import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import { RevertRegisterUserResponse } from '@libs/contracts/users/response/revert-register-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
@@ -55,6 +57,29 @@ export class UsersController {
     return {
       success: result,
       username: revertRegisterUserDto.username,
+    };
+  }
+
+  @MessagePattern(USERS_PATTERN.GET_USER_BY_USERNAME)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getUserByUsername(
+    @Payload() getByUsernameDto: GetByUsernameDto,
+  ): Promise<GetByUsernameResponse> {
+    this.logger.log(
+      `event: ${USERS_PATTERN.GET_USER_BY_USERNAME}: ${getByUsernameDto.username}`,
+    );
+    const user = await this.usersService.getUserByUsername(
+      getByUsernameDto.username,
+    );
+    return {
+      id: user.id,
+      idHash: user.idHash,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      dateOfBirth: user.dateOfBirth,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }

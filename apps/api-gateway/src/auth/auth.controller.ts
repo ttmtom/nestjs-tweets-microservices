@@ -1,7 +1,8 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { RegisterResponse } from './response/register.response';
+import { Public } from './decorators/public.decorator';
+import { LoginDto, RegisterDto } from './dto';
+import { LoginResponse, RegisterResponse } from './response';
 
 @Controller()
 export class AuthController {
@@ -10,6 +11,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/register')
+  @Public()
   async register(@Body() registerDto: RegisterDto): Promise<RegisterResponse> {
     this.logger.log('/register called with username: ', registerDto.username);
     const result = await this.authService.register(registerDto);
@@ -19,7 +21,23 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(): Promise<any> {
-    return 'Login endpoint';
+  @Public()
+  async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
+    this.logger.log(`/login called with username: ${loginDto.username}`);
+    const { userData, authData } = await this.authService.login(loginDto);
+
+    return {
+      user: {
+        id: userData.idHash,
+        username: userData.username,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        dateOfBirth: userData.dateOfBirth,
+        role: authData.role,
+        createdAt: userData.createdAt,
+        updatedAt: userData.updatedAt,
+      },
+      token: authData.token,
+    };
   }
 }

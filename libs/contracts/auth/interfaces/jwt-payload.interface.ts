@@ -1,6 +1,7 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 
-export type RegisterAuthResponse = {
-  userId: string;
+export interface IJwtPayload {
+  sub: string;
+  username: string;
   role: EUserRole;
-};
+}

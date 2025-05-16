@@ -7,6 +7,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from '../database/entities';
 import { UsersRepository } from './users.repository';
@@ -68,5 +69,16 @@ export class UsersService {
 
     await this.repository.remove(user);
     return true;
+  }
+
+  async getUserByUsername(username: string): Promise<User> {
+    const user = await this.repository.getUserByUsername(username);
+    if (!user) {
+      throw new NotFoundException({
+        message: `User not found`,
+        code: ERROR_LIST.USER_USERNAME_NOT_FOUND,
+      });
+    }
+    return user;
   }
 }

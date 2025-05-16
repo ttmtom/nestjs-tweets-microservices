@@ -1,6 +1,7 @@
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
-import { RegisterUserDto } from '@libs/contracts/users/dto';
+import { GetByUsernameDto, RegisterUserDto } from '@libs/contracts/users/dto';
+import { GetByUsernameResponse } from '@libs/contracts/users/response';
 import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import * as usersServiceConfig from '@libs/contracts/users/users.config';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
@@ -85,5 +86,33 @@ export class UsersService {
       SuccessResponse<RegisterUserResponse>,
       RegisterUserDto
     >(USERS_PATTERN.REVERT_CREATE_NEW_USER, userDto);
+  }
+
+  async getUserByUsername(getByUsernameDto: GetByUsernameDto) {
+    try {
+      const response = await firstValueFrom(
+        this.usersClient.send<
+          SuccessResponse<GetByUsernameResponse>,
+          GetByUsernameDto
+        >(USERS_PATTERN.GET_USER_BY_USERNAME, getByUsernameDto),
+      );
+      return response;
+    } catch (error) {
+      this.logger.error(
+        'Error from USERS_SERVICE:',
+        JSON.stringify(error, null, 2),
+      );
+
+      const errPayload = error as ErrorResponse;
+      throw new HttpException(
+        {
+          message:
+            errPayload.message || 'An error occurred with the user service.',
+          errors: errPayload.errors,
+          code: errPayload.code,
+        },
+        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

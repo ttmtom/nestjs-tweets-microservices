@@ -1,5 +1,5 @@
+import { EUserRole } from '@libs/contracts/auth/enums';
 import { RegisterAuthResponse } from '@libs/contracts/auth/response';
-import { UserRole } from '@libs/contracts/auth/types/user-role.type';
 import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 
 export class RegisterResponse {
@@ -8,7 +8,7 @@ export class RegisterResponse {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
-  role: UserRole;
+  role: EUserRole;
   createdAt: Date;
   updatedAt: Date;
 

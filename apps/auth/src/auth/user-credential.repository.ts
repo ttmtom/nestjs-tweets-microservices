@@ -15,4 +15,10 @@ export class UserCredentialRepository {
   ): Promise<UserCredential> {
     return this.repository.save(userCredential);
   }
+
+  async getUserCredentialByUserId(
+    userId: string,
+  ): Promise<UserCredential | null> {
+    return this.repository.findOne({ where: { userId } });
+  }
 }
