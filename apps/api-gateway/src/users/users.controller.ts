@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Inject,
+  Logger,
   Param,
   Post,
   Put,
@@ -16,6 +17,8 @@ import { UsersService } from './users.service';
 
 @Controller('/users')
 export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
+
   constructor(
     @Inject()
     private readonly usersService: UsersService,
@@ -28,6 +31,7 @@ export class UsersController {
     // @TODO
     throw new Error('Method not implemented.');
   }
+
   @Post()
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN)
@@ -56,7 +60,7 @@ export class UsersController {
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN)
   async deleteUser(@Param('id') id: string) {
-    // @TODO
-    throw new Error('Method not implemented.');
+    this.logger.log(`Deleting user with ID ${id}`);
+    await this.usersService.softDeleteUser(id);
   }
 }

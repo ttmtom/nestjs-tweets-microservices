@@ -1,10 +1,14 @@
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
+import { GetByIdHashDto } from '@libs/contracts/users/dto';
 import { GetByUsernameDto } from '@libs/contracts/users/dto/get-by-username.dto';
 import { RegisterUserDto } from '@libs/contracts/users/dto/register-user.dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
+import { SoftDeleteUserDto } from '@libs/contracts/users/dto/soft-delete-user.dto';
 import { TGetByUsernameResponse } from '@libs/contracts/users/response';
+import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
 import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import { TRevertRegisterUserResponse } from '@libs/contracts/users/response/revert-register-user.response';
+import { TSoftDeleteUserResponseDTO } from '@libs/contracts/users/response/soft-delete-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { Controller, Logger, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -80,6 +84,41 @@ export class UsersController {
       dateOfBirth: user.dateOfBirth,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  @MessagePattern(USERS_PATTERN.GET_USER_BY_HASH_ID)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getUserByHashId(
+    @Payload() getByIdHashDto: GetByIdHashDto,
+  ): Promise<TGetByIdHashResponse> {
+    this.logger.log(
+      `event: ${USERS_PATTERN.GET_USER_BY_USERNAME}: ${getByIdHashDto.idHash}`,
+    );
+    const user = await this.usersService.getUserByIdHash(getByIdHashDto.idHash);
+    return {
+      id: user.id,
+      idHash: user.idHash,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      dateOfBirth: user.dateOfBirth,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  @MessagePattern(USERS_PATTERN.SOFT_DELETE_USER)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async softDeleteUser(
+    @Payload() softDeleteDto: SoftDeleteUserDto,
+  ): Promise<TSoftDeleteUserResponseDTO> {
+    this.logger.log(
+      `event: ${USERS_PATTERN.SOFT_DELETE_USER}: ${softDeleteDto.idHash}`,
+    );
+    const result = await this.usersService.softDelete(softDeleteDto.idHash);
+    return {
+      success: !!result.deletedAt,
     };
   }
 }
