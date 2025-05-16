@@ -8,5 +8,3 @@ npm install
 # @TODO migration stage
 # setup flyway migration scripts
 # replace the docker-compose docker-entrypoint-initdb.d start.sql
-
-

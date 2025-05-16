@@ -1,3 +1,4 @@
+import { EUserRole } from '@libs/contracts/auth/enums';
 import { IsNotEmpty } from 'class-validator';
 
 export class RegisterAuthDto {
@@ -6,4 +7,6 @@ export class RegisterAuthDto {
 
   @IsNotEmpty()
   password: string;
+
+  role?: EUserRole;
 }

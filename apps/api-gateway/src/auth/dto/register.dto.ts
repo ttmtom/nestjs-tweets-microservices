@@ -47,4 +47,18 @@ export class RegisterDto {
     },
   )
   dateOfBirth: Date;
+
+  constructor(
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    dateOfBirth: Date,
+  ) {
+    this.username = username;
+    this.password = password;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.dateOfBirth = dateOfBirth;
+  }
 }

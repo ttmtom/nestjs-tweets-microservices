@@ -1,6 +1,7 @@
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
 import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
 import { RegisterAuthDto } from '@libs/contracts/auth/dto/register-auth.dto';
+import { EUserRole } from '@libs/contracts/auth/enums';
 import {
   TLoginAuthResponse,
   TRegisterAuthResponse,
@@ -95,7 +96,7 @@ export class AuthService {
     }
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto, role = EUserRole.USER) {
     const userRegisterDto = new RegisterUserDto(
       registerDto.username,
       registerDto.firstName,
@@ -116,6 +117,7 @@ export class AuthService {
       authCred = await this.insertUserAuthCred({
         userId: userData.id,
         password: registerDto.password,
+        role,
       });
     } catch (error) {
       this.logger.error(

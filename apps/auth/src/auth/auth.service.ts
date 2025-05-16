@@ -31,7 +31,11 @@ export class AuthService {
     const hashedPwd = await this.cryptoService.hashPassword(
       registerAuthDto.password,
     );
-    const newUserCred = new UserCredential(registerAuthDto.userId, hashedPwd);
+    const newUserCred = new UserCredential(
+      registerAuthDto.userId,
+      hashedPwd,
+      registerAuthDto.role,
+    );
     this.logger.log(`userAuthRegister successes ${newUserCred.userId}`);
     return this.repository.insertNewUserCredential(newUserCred);
   }
