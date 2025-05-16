@@ -1,6 +1,5 @@
-// src/common/filters/http-exception.filter.ts
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
-import { ERROR_LIST } from '@libs/contracts/utils/error-list';
 import {
   ArgumentsHost,
   Catch,

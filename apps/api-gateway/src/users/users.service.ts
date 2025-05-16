@@ -1,9 +1,9 @@
+import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
 import { GetByUsernameDto, RegisterUserDto } from '@libs/contracts/users/dto';
-import { GetByUsernameResponse } from '@libs/contracts/users/response';
-import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
-import * as usersServiceConfig from '@libs/contracts/users/users.config';
+import { TGetByUsernameResponse } from '@libs/contracts/users/response';
+import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import {
   HttpException,
@@ -20,7 +20,7 @@ export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
-    @Inject(usersServiceConfig.SERVICE_NAME)
+    @Inject(SERVICE_LIST.USER_SERVICE)
     private readonly usersClient: ClientProxy,
   ) {}
 
@@ -29,7 +29,7 @@ export class UsersService {
     try {
       const response = await firstValueFrom(
         this.usersClient.send<
-          SuccessResponse<RegisterUserResponse>,
+          SuccessResponse<TRegisterUserResponse>,
           RegisterUserDto
         >(USERS_PATTERN.CREATE_NEW_USER, userDto),
       );
@@ -83,7 +83,7 @@ export class UsersService {
     //   );
     // }
     this.usersClient.emit<
-      SuccessResponse<RegisterUserResponse>,
+      SuccessResponse<TRegisterUserResponse>,
       RegisterUserDto
     >(USERS_PATTERN.REVERT_CREATE_NEW_USER, userDto);
   }
@@ -92,7 +92,7 @@ export class UsersService {
     try {
       const response = await firstValueFrom(
         this.usersClient.send<
-          SuccessResponse<GetByUsernameResponse>,
+          SuccessResponse<TGetByUsernameResponse>,
           GetByUsernameDto
         >(USERS_PATTERN.GET_USER_BY_USERNAME, getByUsernameDto),
       );

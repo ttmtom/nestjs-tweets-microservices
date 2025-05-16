@@ -1,4 +1,4 @@
-import { ERROR_LIST } from '@libs/contracts/utils/error-list';
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import {
   BadRequestException,
   HttpStatus,

@@ -12,14 +12,12 @@ import { UserCredentialRepository } from './user-credential.repository';
   imports: [
     TypeOrmModule.forFeature([UserCredential]),
     JwtModule.registerAsync({
-      useFactory: (config: ConfigService) => {
-        return {
-          secret: config.get<string>('APP_JWT_SECRET'),
-          signOptions: {
-            expiresIn: config.get<string | number>('APP_JWT_EXPIRATION'),
-          },
-        };
-      },
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('APP_JWT_SECRET'),
+        signOptions: {
+          expiresIn: config.get<string | number>('APP_JWT_EXPIRATION'),
+        },
+      }),
       inject: [ConfigService],
     }),
   ],

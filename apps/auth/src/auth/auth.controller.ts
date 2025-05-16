@@ -1,9 +1,11 @@
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
 import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
 import { RegisterAuthDto } from '@libs/contracts/auth/dto/register-auth.dto';
+import { ValidateTokenDto } from '@libs/contracts/auth/dto/validate-token.dto';
 import {
-  LoginAuthResponse,
-  RegisterAuthResponse,
+  TLoginAuthResponse,
+  TRegisterAuthResponse,
+  TValidateTokenResponse,
 } from '@libs/contracts/auth/response';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
 import { Controller, UseInterceptors } from '@nestjs/common';
@@ -18,7 +20,7 @@ export class AuthController {
   @UseInterceptors(EventResponseWrapperInterceptor)
   async register(
     @Payload() registerAuthDto: RegisterAuthDto,
-  ): Promise<RegisterAuthResponse> {
+  ): Promise<TRegisterAuthResponse> {
     const newCred = await this.authService.userAuthRegister(registerAuthDto);
     return { role: newCred.role, userId: newCred.userId };
   }
@@ -27,8 +29,20 @@ export class AuthController {
   @UseInterceptors(EventResponseWrapperInterceptor)
   async login(
     @Payload() loginAuthDto: LoginAuthDto,
-  ): Promise<LoginAuthResponse> {
+  ): Promise<TLoginAuthResponse> {
     const token = await this.authService.userLogin(loginAuthDto);
     return token;
+  }
+
+  @MessagePattern(AUTH_PATTERN.AUTH_VALIDATE_TOKEN)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async validateToken(
+    @Payload() validateTokenDto: ValidateTokenDto,
+  ): Promise<TValidateTokenResponse> {
+    const jwtPayload = await this.authService.validateToken(validateTokenDto);
+    return {
+      isValid: !!jwtPayload,
+      user: jwtPayload,
+    };
   }
 }

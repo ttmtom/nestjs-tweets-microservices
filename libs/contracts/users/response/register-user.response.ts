@@ -1,4 +1,4 @@
-export type RegisterUserResponse = {
+export type TRegisterUserResponse = {
   id: string;
   idHash: string;
   username: string;

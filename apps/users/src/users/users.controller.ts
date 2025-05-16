@@ -2,9 +2,9 @@ import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-r
 import { GetByUsernameDto } from '@libs/contracts/users/dto/get-by-username.dto';
 import { RegisterUserDto } from '@libs/contracts/users/dto/register-user.dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
-import { GetByUsernameResponse } from '@libs/contracts/users/response';
-import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
-import { RevertRegisterUserResponse } from '@libs/contracts/users/response/revert-register-user.response';
+import { TGetByUsernameResponse } from '@libs/contracts/users/response';
+import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
+import { TRevertRegisterUserResponse } from '@libs/contracts/users/response/revert-register-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { Controller, Logger, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -22,7 +22,7 @@ export class UsersController {
   @UseInterceptors(EventResponseWrapperInterceptor)
   async createNewUser(
     @Payload() registerUserDto: RegisterUserDto,
-  ): Promise<RegisterUserResponse> {
+  ): Promise<TRegisterUserResponse> {
     this.logger.log(
       `event: ${USERS_PATTERN.CREATE_NEW_USER}: ${JSON.stringify(registerUserDto)}`,
     );
@@ -44,7 +44,7 @@ export class UsersController {
   @UseInterceptors(EventResponseWrapperInterceptor)
   async revertNewUser(
     @Payload() revertRegisterUserDto: RevertRegisterUserDto,
-  ): Promise<RevertRegisterUserResponse> {
+  ): Promise<TRevertRegisterUserResponse> {
     this.logger.log(
       `event: ${USERS_PATTERN.REVERT_CREATE_NEW_USER}: ${revertRegisterUserDto.username}`,
     );
@@ -64,7 +64,7 @@ export class UsersController {
   @UseInterceptors(EventResponseWrapperInterceptor)
   async getUserByUsername(
     @Payload() getByUsernameDto: GetByUsernameDto,
-  ): Promise<GetByUsernameResponse> {
+  ): Promise<TGetByUsernameResponse> {
     this.logger.log(
       `event: ${USERS_PATTERN.GET_USER_BY_USERNAME}: ${getByUsernameDto.username}`,
     );

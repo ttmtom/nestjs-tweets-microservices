@@ -1,4 +1,4 @@
-export type GetByUsernameResponse = {
+export type TGetByUsernameResponse = {
   id: string;
   idHash: string;
   username: string;

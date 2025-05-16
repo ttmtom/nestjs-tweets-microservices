@@ -1,6 +1,6 @@
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { RegisterUserDto } from '@libs/contracts/users/dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
-import { ERROR_LIST } from '@libs/contracts/utils/error-list';
 import {
   HttpException,
   HttpStatus,

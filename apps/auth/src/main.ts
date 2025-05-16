@@ -1,8 +1,8 @@
-import * as authServiceConfig from '@libs/contracts/auth/auth.config';
 import { MicroserviceAllExceptionsFilter } from '@libs/contracts/general/exceptions-filter';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import 'dotenv/config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,7 +10,10 @@ async function bootstrap() {
     AppModule,
     {
       transport: Transport.TCP,
-      options: { port: authServiceConfig.SERVICE_PORT },
+      options: {
+        host: process.env.AUTH_SERVICE_HOST,
+        port: Number(process.env.AUTH_SERVICE_PORT),
+      },
     },
   );
 

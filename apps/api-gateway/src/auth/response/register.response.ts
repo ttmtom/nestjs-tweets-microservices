@@ -1,6 +1,6 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
-import { RegisterAuthResponse } from '@libs/contracts/auth/response';
-import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
+import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
+import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 
 export class RegisterResponse {
   id: string;
@@ -12,7 +12,7 @@ export class RegisterResponse {
   createdAt: Date;
   updatedAt: Date;
 
-  constructor(userRes: RegisterUserResponse, authRes: RegisterAuthResponse) {
+  constructor(userRes: TRegisterUserResponse, authRes: TRegisterAuthResponse) {
     this.id = userRes.idHash;
     this.username = userRes.username;
     this.firstName = userRes.firstName;

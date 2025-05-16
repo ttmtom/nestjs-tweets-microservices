@@ -1,18 +1,18 @@
-import * as authServiceConfig from '@libs/contracts/auth/auth.config';
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
 import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
 import { RegisterAuthDto } from '@libs/contracts/auth/dto/register-auth.dto';
 import {
-  LoginAuthResponse,
-  RegisterAuthResponse,
+  TLoginAuthResponse,
+  TRegisterAuthResponse,
 } from '@libs/contracts/auth/response';
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
+import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
 import { GetByUsernameDto } from '@libs/contracts/users/dto';
 import { RegisterUserDto } from '@libs/contracts/users/dto/register-user.dto';
-import { GetByUsernameResponse } from '@libs/contracts/users/response';
-import { RegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
-import { ERROR_LIST } from '@libs/contracts/utils/error-list';
+import { TGetByUsernameResponse } from '@libs/contracts/users/response';
+import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import {
   HttpException,
   HttpStatus,
@@ -33,7 +33,7 @@ export class AuthService {
   constructor(
     @Inject()
     private readonly usersService: UsersService,
-    @Inject(authServiceConfig.SERVICE_NAME)
+    @Inject(SERVICE_LIST.AUTH_SERVICE)
     private readonly authClient: ClientProxy,
   ) {}
 
@@ -42,7 +42,7 @@ export class AuthService {
     try {
       const response = await firstValueFrom(
         this.authClient.send<
-          SuccessResponse<RegisterAuthResponse>,
+          SuccessResponse<TRegisterAuthResponse>,
           RegisterAuthDto
         >(AUTH_PATTERN.AUTH_REGISTER, registerAuthDto),
       );
@@ -67,7 +67,7 @@ export class AuthService {
     this.logger.log(`userLogin${loginAuthDto.userId}`);
     try {
       const response = await firstValueFrom(
-        this.authClient.send<SuccessResponse<LoginAuthResponse>, LoginAuthDto>(
+        this.authClient.send<SuccessResponse<TLoginAuthResponse>, LoginAuthDto>(
           AUTH_PATTERN.AUTH_LOGIN,
           loginAuthDto,
         ),
@@ -96,7 +96,7 @@ export class AuthService {
       registerDto.lastName,
       registerDto.dateOfBirth,
     );
-    let userCreateRes: SuccessResponse<RegisterUserResponse>;
+    let userCreateRes: SuccessResponse<TRegisterUserResponse>;
     try {
       userCreateRes = await this.usersService.userRegistration(userRegisterDto);
     } catch (error) {
@@ -105,7 +105,7 @@ export class AuthService {
     }
     const { data: userData } = userCreateRes;
 
-    let authCred: SuccessResponse<RegisterAuthResponse>;
+    let authCred: SuccessResponse<TRegisterAuthResponse>;
     try {
       authCred = await this.insertUserAuthCred({
         userId: userData.id,
@@ -127,7 +127,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const getUserByUsernameBto = new GetByUsernameDto(loginDto.username);
-    let getUserRes: SuccessResponse<GetByUsernameResponse>;
+    let getUserRes: SuccessResponse<TGetByUsernameResponse>;
     try {
       getUserRes =
         await this.usersService.getUserByUsername(getUserByUsernameBto);
@@ -143,7 +143,7 @@ export class AuthService {
     }
     const { data: userData } = getUserRes;
 
-    let loginAuthRes: SuccessResponse<LoginAuthResponse>;
+    let loginAuthRes: SuccessResponse<TLoginAuthResponse>;
 
     try {
       loginAuthRes = await this.userLogin({

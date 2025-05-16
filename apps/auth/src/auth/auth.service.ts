@@ -1,7 +1,7 @@
-import { RegisterAuthDto } from '@libs/contracts/auth/dto';
+import { RegisterAuthDto, ValidateTokenDto } from '@libs/contracts/auth/dto';
 import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
 import { IJwtPayload } from '@libs/contracts/auth/interfaces/jwt-payload.interface';
-import { ERROR_LIST } from '@libs/contracts/utils/error-list';
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import {
   Inject,
   Injectable,
@@ -74,5 +74,22 @@ export class AuthService {
       role: userCred.role,
       token,
     };
+  }
+
+  async validateToken(validateUserDto: ValidateTokenDto) {
+    this.logger.log(`validateToken ${validateUserDto.token}`);
+    try {
+      const payload = await this.jwtServie.verifyAsync<IJwtPayload>(
+        validateUserDto.token,
+      );
+      this.logger.log(`validateToken success ${payload.sub}`);
+      return payload;
+    } catch (error) {
+      this.logger.log(`validateToken error ${error.message}`);
+      throw new UnauthorizedException({
+        message: 'Invalid token',
+        code: ERROR_LIST.AUTH_USER_UNAUTHORIZED,
+      });
+    }
   }
 }
