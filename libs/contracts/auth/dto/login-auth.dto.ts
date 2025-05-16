@@ -5,6 +5,9 @@ export class LoginAuthDto {
   userId: string;
 
   @IsNotEmpty()
+  idHash: string;
+
+  @IsNotEmpty()
   username: string;
 
   @IsNotEmpty()

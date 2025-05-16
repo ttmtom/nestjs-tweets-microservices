@@ -68,6 +68,7 @@ export class AuthService {
     }
     const payload: IJwtPayload = {
       sub: userCred.userId,
+      idHash: loginAuthDto.idHash,
       username: loginAuthDto.username,
       role: userCred.role,
     };
@@ -95,5 +96,19 @@ export class AuthService {
         code: ERROR_LIST.AUTH_USER_UNAUTHORIZED,
       });
     }
+  }
+
+  async getUserRole(userId: string) {
+    const userCred = await this.repository.getUserCredentialByUserId(userId);
+
+    if (!userCred) {
+      this.logger.log(`userLogin failures ${userId}`);
+      throw new NotFoundException({
+        message: 'User not found',
+        code: ERROR_LIST.AUTH_USER_CRED_NOT_FOUND,
+      });
+    }
+
+    return userCred.role;
   }
 }

@@ -1,10 +1,12 @@
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
+import { GetUserRoleDto } from '@libs/contracts/auth/dto';
 import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
 import { RegisterAuthDto } from '@libs/contracts/auth/dto/register-auth.dto';
 import {
   TLoginAuthResponse,
   TRegisterAuthResponse,
 } from '@libs/contracts/auth/response';
+import { TGetUserRoleResponse } from '@libs/contracts/auth/response/get-user-role.response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
@@ -64,6 +66,34 @@ export class AuthService {
           AUTH_PATTERN.AUTH_LOGIN,
           loginAuthDto,
         ),
+      );
+      return response;
+    } catch (error) {
+      this.logger.error(
+        'Error from AUTH_SERVICE:',
+        JSON.stringify(error, null, 2),
+      );
+
+      const errPayload = error as ErrorResponse;
+      throw new HttpException(
+        {
+          message:
+            errPayload.message || 'An error occurred with the user service.',
+          code: errPayload.code,
+          errors: errPayload.errors,
+        },
+        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getUserRole(userId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.authClient.send<
+          SuccessResponse<TGetUserRoleResponse>,
+          GetUserRoleDto
+        >(AUTH_PATTERN.AUTH_GET_USER_ROLE, { userId }),
       );
       return response;
     } catch (error) {

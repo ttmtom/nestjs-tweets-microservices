@@ -84,6 +84,7 @@ export class AppService {
     try {
       loginAuthRes = await this.authService.userLogin({
         userId: userData.id,
+        idHash: userData.idHash,
         username: userData.username,
         password: loginDto.password,
       });

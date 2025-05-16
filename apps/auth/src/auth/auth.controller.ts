@@ -1,4 +1,5 @@
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
+import { GetUserRoleDto } from '@libs/contracts/auth/dto';
 import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
 import { RegisterAuthDto } from '@libs/contracts/auth/dto/register-auth.dto';
 import { ValidateTokenDto } from '@libs/contracts/auth/dto/validate-token.dto';
@@ -7,6 +8,7 @@ import {
   TRegisterAuthResponse,
   TValidateTokenResponse,
 } from '@libs/contracts/auth/response';
+import { TGetUserRoleResponse } from '@libs/contracts/auth/response/get-user-role.response';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -44,5 +46,14 @@ export class AuthController {
       isValid: !!jwtPayload,
       user: jwtPayload,
     };
+  }
+
+  @MessagePattern(AUTH_PATTERN.AUTH_GET_USER_ROLE)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getUserRole(
+    @Payload() getUserRoleDto: GetUserRoleDto,
+  ): Promise<TGetUserRoleResponse> {
+    const role = await this.authService.getUserRole(getUserRoleDto.userId);
+    return { role };
   }
 }

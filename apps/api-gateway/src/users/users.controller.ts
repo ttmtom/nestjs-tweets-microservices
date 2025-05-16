@@ -1,7 +1,10 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
+import { IJwtPayload } from '@libs/contracts/auth/interfaces';
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import {
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Inject,
   Logger,
@@ -11,6 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from '../common/decorators/role.decorator';
+import { User } from '../common/decorators/user.decorator';
 import { ApiGatewayAuthGuard } from '../common/guards/api-gateway-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UsersService } from './users.service';
@@ -43,9 +47,26 @@ export class UsersController {
   @Get(':id')
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN, EUserRole.USER)
-  getUserById(@Param('id') id: string) {
-    // @TODO
-    throw new Error('Method not implemented.');
+  async getUserById(@Param('id') idHash: string, @User() user: IJwtPayload) {
+    this.logger.log(`Getting user with ID ${idHash}`);
+    if (idHash !== user.idHash && user.role !== EUserRole.ADMIN) {
+      throw new ForbiddenException({
+        message: 'Forbidden',
+        code: ERROR_LIST.APIGATEWAY_FORBIDDEN_ACCESS,
+      });
+    }
+
+    const userRes = await this.usersService.getUserByIdHash(idHash);
+    return {
+      id: userRes.idHash,
+      username: userRes.username,
+      firstName: userRes.firstName,
+      lastName: userRes.lastName,
+      dateOfBirth: userRes.dateOfBirth,
+      role: userRes.role,
+      createdAt: userRes.createdAt,
+      updatedAt: userRes.updatedAt,
+    };
   }
 
   @Put(':id')

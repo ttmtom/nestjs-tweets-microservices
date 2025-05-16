@@ -16,12 +16,15 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
+    @Inject()
+    private readonly authService: AuthService,
     @Inject(SERVICE_LIST.USERS_SERVICE)
     private readonly usersClient: ClientProxy,
   ) {}
@@ -119,14 +122,14 @@ export class UsersService {
   }
 
   async getUserByIdHash(idHash: string) {
+    let userRes: SuccessResponse<TGetByIdHashResponse>;
     try {
-      const response = await firstValueFrom(
+      userRes = await firstValueFrom(
         this.usersClient.send<
           SuccessResponse<TGetByIdHashResponse>,
           GetByIdHashDto
         >(USERS_PATTERN.GET_USER_BY_HASH_ID, { idHash }),
       );
-      return response;
     } catch (error) {
       this.logger.error(
         'Error from USERS_SERVICE:',
@@ -144,6 +147,13 @@ export class UsersService {
         errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    const { data: userData } = userRes;
+
+    const roleRes = await this.authService.getUserRole(userData.id);
+    const { data } = roleRes;
+
+    return { ...userData, role: data.role };
   }
 
   async softDeleteUser(idHash: string) {
