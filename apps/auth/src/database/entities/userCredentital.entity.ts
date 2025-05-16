@@ -2,6 +2,7 @@ import { EUserRole } from '@libs/contracts/auth/enums';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryColumn,
   UpdateDateColumn,
@@ -30,6 +31,9 @@ export class UserCredential {
 
   @UpdateDateColumn({ type: 'date', name: 'updated_at' })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt?: Date;
 
   constructor(userId: string, hashedPassword: string, role?: EUserRole) {
     this.userId = userId;

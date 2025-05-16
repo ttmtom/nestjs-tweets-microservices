@@ -1,8 +1,8 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { Logger } from '@nestjs/common';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { AuthService } from '../auth/auth.service';
 import { RegisterDto } from '../auth/dto';
+import { AppService } from './app.service';
 
 interface ICreateAdminCommandOptions {
   username?: string;
@@ -15,7 +15,7 @@ interface ICreateAdminCommandOptions {
 export class CreateAdminCommand extends CommandRunner {
   private readonly logger = new Logger(CreateAdminCommand.name);
 
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly appService: AppService) {
     super();
   }
 
@@ -40,7 +40,7 @@ export class CreateAdminCommand extends CommandRunner {
     );
 
     try {
-      await this.authService.register(adminRegisterDto, EUserRole.ADMIN);
+      await this.appService.register(adminRegisterDto, EUserRole.ADMIN);
     } catch (error) {
       this.logger.error('Failed to create admin user:', error.message);
     }

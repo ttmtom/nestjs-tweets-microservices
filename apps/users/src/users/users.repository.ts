@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { User } from '../database/entities';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class UsersRepository {
   ) {}
 
   async isUserExists(username: string): Promise<boolean> {
-    return this.repository.exists({ where: { username } });
+    return this.repository.exists({ where: { username, deletedAt: IsNull() } });
   }
 
   async insert(user: User): Promise<User> {
@@ -23,6 +23,8 @@ export class UsersRepository {
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    return this.repository.findOne({ where: { username } });
+    return this.repository.findOne({
+      where: { username, deletedAt: IsNull() },
+    });
   }
 }

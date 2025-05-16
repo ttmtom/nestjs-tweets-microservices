@@ -1,8 +1,9 @@
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
-import { IJwtPayload } from '@libs/contracts/auth/interfaces';
+import { ValidateTokenDto } from '@libs/contracts/auth/dto';
+import { TValidateTokenResponse } from '@libs/contracts/auth/response';
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import { ErrorResponse } from '@libs/contracts/general/dto';
+import { ErrorResponse, SuccessResponse } from '@libs/contracts/general/dto';
 import {
   CanActivate,
   ExecutionContext,
@@ -14,7 +15,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { catchError, firstValueFrom, throwError, timeout } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ApiGatewayAuthGuard implements CanActivate {
@@ -34,34 +35,22 @@ export class ApiGatewayAuthGuard implements CanActivate {
     }
 
     try {
-      const userPayload = await firstValueFrom(
-        this.authClient
-          .send<
-            IJwtPayload,
-            { token: string }
-          >(AUTH_PATTERN.AUTH_VALIDATE_TOKEN, { token })
-          .pipe(
-            timeout(5000),
-            catchError((err) => {
-              this.logger.error('Auth service error:', err);
-              const status =
-                err.status || err.statusCode || HttpStatus.UNAUTHORIZED;
-              const message =
-                err.message ||
-                'Authentication failed due to auth service error.';
-              return throwError(() => new HttpException(message, status));
-            }),
-          ),
+      const validateRes = await firstValueFrom(
+        this.authClient.send<
+          SuccessResponse<TValidateTokenResponse>,
+          ValidateTokenDto
+        >(AUTH_PATTERN.AUTH_VALIDATE_TOKEN, { token }),
       );
 
-      if (!userPayload || !userPayload.sub) {
+      const { data: userPayload } = validateRes;
+      if (!userPayload || !userPayload.user) {
         throw new UnauthorizedException({
           message: 'Invalid token',
           code: ERROR_LIST.APIGATEWAY_UNAUTHORIZED,
         });
       }
 
-      request.user = userPayload;
+      request.user = userPayload.user;
       return true;
     } catch (error) {
       this.logger.error(
