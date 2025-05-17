@@ -8,6 +8,7 @@ import {
   Get,
   Inject,
   Logger,
+  Param,
   Post,
   Put,
   Query,
@@ -30,23 +31,20 @@ export class TweetsController {
 
   @Get()
   @UseGuards(ApiGatewayAuthGuard)
-  async getTweets(
-    @Query() paginationDto: PaginationDto,
-    @User() user: IJwtPayload,
-  ) {
-    const tweets = await this.tweetsService.getTweets(paginationDto);
+  async getTweets(@Query() paginationDto: PaginationDto) {
+    const { tweetsData, users } =
+      await this.tweetsService.getTweets(paginationDto);
     return {
-      ...tweets,
-      data: tweets.data.map((tweet) => ({
+      ...tweetsData,
+      data: tweetsData.data.map((tweet) => ({
         id: tweet.id,
-        authorId: tweet.authorId,
         title: tweet.title,
         content: tweet.content,
         updatedAt: tweet.updatedAt,
         createdAt: tweet.createdAt,
         own: {
-          userId: user.idHash,
-          username: user.username,
+          userId: users.get(tweet.authorId).idHash,
+          username: users.get(tweet.authorId).username,
         },
       })),
     };
@@ -54,8 +52,20 @@ export class TweetsController {
 
   @Get(':id')
   @UseGuards(ApiGatewayAuthGuard)
-  async getTweetById(id: string): Promise<string> {
-    return `Tweet with id ${id}`;
+  async getTweetById(@Param('id') id: string) {
+    this.logger.log(`Getting tweet with id ${id}`);
+    const { tweet, author } = await this.tweetsService.getTweet(id);
+    return {
+      id: tweet.id,
+      title: tweet.title,
+      content: tweet.content,
+      updatedAt: tweet.updatedAt,
+      createdAt: tweet.createdAt,
+      own: {
+        userId: author.idHash,
+        username: author.username,
+      },
+    };
   }
 
   @Post()

@@ -1,4 +1,9 @@
-import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
+import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
+import { GetUserRoleDto } from '@libs/contracts/auth/dto';
+import {
+  TGetUserRoleResponse,
+  TRegisterAuthResponse,
+} from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { PaginationDto, SuccessResponse } from '@libs/contracts/general/dto';
 import {
@@ -33,6 +38,8 @@ export class UsersService {
     private readonly authService: AuthService,
     @Inject(SERVICE_LIST.USERS_SERVICE)
     private readonly usersClient: ClientProxy,
+    @Inject(SERVICE_LIST.AUTH_SERVICE)
+    private readonly authClient: ClientProxy,
   ) {}
 
   async userRegistration(userDto: RegisterUserDto) {
@@ -163,8 +170,23 @@ export class UsersService {
       paginationDto,
       this.logger,
     );
+    const { data: users } = usersRes;
 
-    return usersRes.data;
+    const userAuths = {};
+    for (const user of users.data) {
+      const res = await sendEvent<TGetUserRoleResponse, GetUserRoleDto>(
+        this.authClient,
+        AUTH_PATTERN.AUTH_GET_USER_ROLE,
+        { userId: user.id },
+        this.logger,
+      );
+      userAuths[user.id] = res.data.role;
+    }
+
+    return {
+      users,
+      userAuths,
+    };
   }
 
   async updateUser(updateUserDto: UpdateUserGatewayDto, idHash: string) {

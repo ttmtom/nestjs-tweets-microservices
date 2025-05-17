@@ -6,4 +6,5 @@ export const USERS_PATTERN = {
   GET_USER_BY_HASH_ID: 'user.get-by-hash-id',
   GET_USERS: 'user.get-users',
   UPDATE_USER: 'user.update',
+  GET_USERNAME_BY_ID: 'user.get-user-by-id',
 };

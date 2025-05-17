@@ -1,8 +1,10 @@
 import { PaginationDto } from '@libs/contracts/general/dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
+import { GetTweetDto } from '@libs/contracts/tweets/dto';
 import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
 import {
   TCreateTweetResponse,
+  TGetTweetResponse,
   TGetTweetsResponse,
 } from '@libs/contracts/tweets/response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
@@ -37,5 +39,16 @@ export class TweetsController {
     const paginationData = await this.tweetsService.getTweets(paginationDto);
 
     return paginationData;
+  }
+
+  @MessagePattern(TWEETS_PATTERN.GET_TWEET)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getTweet(
+    @Payload() getTweetDto: GetTweetDto,
+  ): Promise<TGetTweetResponse> {
+    this.logger.log(`event: ${TWEETS_PATTERN.GET_TWEET}`);
+    const tweet = await this.tweetsService.getTweet(getTweetDto);
+
+    return tweet;
   }
 }

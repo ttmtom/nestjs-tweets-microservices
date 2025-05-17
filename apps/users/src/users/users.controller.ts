@@ -3,6 +3,7 @@ import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-r
 import {
   GetByIdHashDto,
   GetByUsernameDto,
+  GetUserByIdDto,
   RegisterUserDto,
   RevertRegisterUserDto,
   SoftDeleteUserDto,
@@ -17,6 +18,7 @@ import {
   TSoftDeleteUserResponseDTO,
   TUpdateUserResponse,
 } from '@libs/contracts/users/response';
+import { TGetUserByIdResponse } from '@libs/contracts/users/response/get-username.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { Controller, Logger, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -151,5 +153,17 @@ export class UsersController {
     );
     const updateUser = await this.usersService.updateUser(updateUserDto);
     return updateUser;
+  }
+
+  @MessagePattern(USERS_PATTERN.GET_USERNAME_BY_ID)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getUserById(
+    @Payload() getUserByIdDto: GetUserByIdDto,
+  ): Promise<TGetUserByIdResponse> {
+    this.logger.log(
+      `event: ${USERS_PATTERN.GET_USERNAME_BY_ID}: ${getUserByIdDto.id}`,
+    );
+    const user = await this.usersService.getUserById(getUserByIdDto.id);
+    return user;
   }
 }

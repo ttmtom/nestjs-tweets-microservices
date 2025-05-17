@@ -1,5 +1,6 @@
 export * from './get-by-id-hash.dto';
 export * from './get-by-username.dto';
+export * from './get-user-by-id.dto';
 export * from './get-users.dto';
 export * from './register-user.dto';
 export * from './revert-register-user.dto';

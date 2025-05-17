@@ -34,6 +34,12 @@ export class UsersRepository {
     });
   }
 
+  async getUserById(id: string): Promise<User | null> {
+    return this.repository.findOne({
+      where: { id, deletedAt: IsNull() },
+    });
+  }
+
   async save(user: User): Promise<User> {
     return this.repository.save(user);
   }

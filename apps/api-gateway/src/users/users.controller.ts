@@ -37,15 +37,16 @@ export class UsersController {
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN)
   async getUsers(@Query() paginationDto: PaginationDto) {
-    const users = await this.usersService.getUsers(paginationDto);
+    const usersData = await this.usersService.getUsers(paginationDto);
     return {
-      ...users,
-      data: users.data.map((user) => ({
+      ...usersData.users,
+      data: usersData.users.data.map((user) => ({
         id: user.idHash,
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
         dateOfBirth: user.dateOfBirth,
+        role: usersData.userAuths[user.id],
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       })),

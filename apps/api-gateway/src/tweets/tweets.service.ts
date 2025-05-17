@@ -1,11 +1,19 @@
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { PaginationDto } from '@libs/contracts/general/dto';
-import { CreateTweetDto, GetTweetsDto } from '@libs/contracts/tweets/dto';
+import {
+  CreateTweetDto,
+  GetTweetDto,
+  GetTweetsDto,
+} from '@libs/contracts/tweets/dto';
 import {
   TCreateTweetResponse,
+  TGetTweetResponse,
   TGetTweetsResponse,
 } from '@libs/contracts/tweets/response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
+import { GetUserByIdDto } from '@libs/contracts/users/dto';
+import { TGetUserByIdResponse } from '@libs/contracts/users/response/get-username.response';
+import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { sendEvent } from '../common/helper/send-event';
@@ -17,6 +25,8 @@ export class TweetsService {
   constructor(
     @Inject(SERVICE_LIST.TWEETS_SERVICE)
     private readonly tweetsClient: ClientProxy,
+    @Inject(SERVICE_LIST.USERS_SERVICE)
+    private readonly usersClient: ClientProxy,
   ) {}
 
   async getTweets(paginationDto: PaginationDto) {
@@ -26,8 +36,23 @@ export class TweetsService {
       paginationDto,
       this.logger,
     );
+    const users = new Map<string, TGetUserByIdResponse>();
 
-    return tweetsRes.data;
+    for (const tweet of tweetsRes.data.data) {
+      if (users.has(tweet.authorId)) {
+        continue;
+      }
+      const userRes = await sendEvent<TGetUserByIdResponse, GetUserByIdDto>(
+        this.usersClient,
+        USERS_PATTERN.GET_USERNAME_BY_ID,
+        { id: tweet.authorId },
+        this.logger,
+      );
+
+      users.set(tweet.authorId, userRes.data);
+    }
+
+    return { tweetsData: tweetsRes.data, users };
   }
 
   async postTweet(postTweetDto: PostTweetDto, userId: string) {
@@ -42,5 +67,24 @@ export class TweetsService {
     );
 
     return tweetRes.data;
+  }
+
+  async getTweet(id: string) {
+    const tweetRes = await sendEvent<TGetTweetResponse, GetTweetDto>(
+      this.tweetsClient,
+      TWEETS_PATTERN.GET_TWEET,
+      { id },
+      this.logger,
+    );
+
+    const { data: tweet } = tweetRes;
+    const userRes = await sendEvent<TGetUserByIdResponse, GetUserByIdDto>(
+      this.usersClient,
+      USERS_PATTERN.GET_USERNAME_BY_ID,
+      { id: tweet.authorId },
+      this.logger,
+    );
+
+    return { tweet, author: userRes.data };
   }
 }

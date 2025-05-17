@@ -26,4 +26,13 @@ export class TweetsRepository {
 
     return [tweets, totalCount];
   }
+
+  async findById(id: string): Promise<Tweet> {
+    const tweet = await this.repository.findOneBy({
+      id,
+      deletedAt: IsNull(),
+    });
+
+    return tweet;
+  }
 }

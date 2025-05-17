@@ -97,6 +97,17 @@ export class UsersService {
     return user;
   }
 
+  async getUserById(id: string): Promise<User> {
+    const user = await this.repository.getUserById(id);
+    if (!user) {
+      throw new NotFoundException({
+        message: `User not found`,
+        code: ERROR_LIST.USER_USERNAME_NOT_FOUND,
+      });
+    }
+    return user;
+  }
+
   async softDelete(idHash: string): Promise<User> {
     const user = await this.getUserByIdHash(idHash);
     user.deletedAt = new Date();
