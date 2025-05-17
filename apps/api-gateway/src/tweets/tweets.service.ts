@@ -1,24 +1,14 @@
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import {
-  ErrorResponse,
-  PaginationDto,
-  SuccessResponse,
-} from '@libs/contracts/general/dto';
+import { PaginationDto } from '@libs/contracts/general/dto';
 import { CreateTweetDto, GetTweetsDto } from '@libs/contracts/tweets/dto';
 import {
   TCreateTweetResponse,
   TGetTweetsResponse,
 } from '@libs/contracts/tweets/response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { sendEvent } from '../common/helper/send-event';
 import { PostTweetDto } from './dto/post-tweet.dto';
 
 @Injectable()
@@ -30,65 +20,27 @@ export class TweetsService {
   ) {}
 
   async getTweets(paginationDto: PaginationDto) {
-    let tweetsRes: SuccessResponse<TGetTweetsResponse>;
-
-    try {
-      tweetsRes = await firstValueFrom(
-        this.tweetsClient.send<
-          SuccessResponse<TGetTweetsResponse>,
-          GetTweetsDto
-        >(TWEETS_PATTERN.GET_TWEETS, paginationDto),
-      );
-    } catch (error) {
-      this.logger.error(
-        'Error from TWEETS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const tweetsRes = await sendEvent<TGetTweetsResponse, GetTweetsDto>(
+      this.tweetsClient,
+      TWEETS_PATTERN.GET_TWEETS,
+      paginationDto,
+      this.logger,
+    );
 
     return tweetsRes.data;
   }
 
   async postTweet(postTweetDto: PostTweetDto, userId: string) {
-    let tweetRes: SuccessResponse<TCreateTweetResponse>;
-    try {
-      tweetRes = await firstValueFrom(
-        this.tweetsClient.send<
-          SuccessResponse<TCreateTweetResponse>,
-          CreateTweetDto
-        >(TWEETS_PATTERN.CREATE_TWEET, {
-          ...postTweetDto,
-          authorId: userId,
-        }),
-      );
-    } catch (error) {
-      this.logger.error(
-        'Error from TWEETS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
+    const tweetRes = await sendEvent<TCreateTweetResponse, CreateTweetDto>(
+      this.tweetsClient,
+      TWEETS_PATTERN.CREATE_TWEET,
+      {
+        ...postTweetDto,
+        authorId: userId,
+      },
+      this.logger,
+    );
 
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
     return tweetRes.data;
   }
 }

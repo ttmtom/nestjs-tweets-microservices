@@ -1,15 +1,12 @@
 import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import {
-  ErrorResponse,
-  PaginationDto,
-  SuccessResponse,
-} from '@libs/contracts/general/dto';
+import { PaginationDto, SuccessResponse } from '@libs/contracts/general/dto';
 import {
   GetByIdHashDto,
   GetByUsernameDto,
   GetUsersDto,
   RegisterUserDto,
+  SoftDeleteUserDto,
   UpdateUserDto,
 } from '@libs/contracts/users/dto';
 import {
@@ -17,19 +14,14 @@ import {
   TGetByUsernameResponse,
   TGetUsersResponse,
   TRegisterUserResponse,
+  TSoftDeleteUserResponseDTO,
   TUpdateUserResponse,
 } from '@libs/contracts/users/response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { sendEvent } from '../common/helper/send-event';
 import { CreateUserDto, UpdateUserGatewayDto } from './dto';
 
 @Injectable()
@@ -45,31 +37,14 @@ export class UsersService {
 
   async userRegistration(userDto: RegisterUserDto) {
     this.logger.log('Registering user:', userDto.username);
-    try {
-      const response = await firstValueFrom(
-        this.usersClient.send<
-          SuccessResponse<TRegisterUserResponse>,
-          RegisterUserDto
-        >(USERS_PATTERN.CREATE_NEW_USER, userDto),
-      );
-      return response;
-    } catch (error) {
-      this.logger.error(
-        '/userRegistration Error from USERS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
+    const res = await sendEvent<TRegisterUserResponse, RegisterUserDto>(
+      this.usersClient,
+      USERS_PATTERN.CREATE_NEW_USER,
+      userDto,
+      this.logger,
+    );
 
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return res;
   }
 
   // emit event to revert user registration
@@ -108,59 +83,22 @@ export class UsersService {
   }
 
   async getUserByUsername(getByUsernameDto: GetByUsernameDto) {
-    try {
-      const response = await firstValueFrom(
-        this.usersClient.send<
-          SuccessResponse<TGetByUsernameResponse>,
-          GetByUsernameDto
-        >(USERS_PATTERN.GET_USER_BY_USERNAME, getByUsernameDto),
-      );
-      return response;
-    } catch (error) {
-      this.logger.error(
-        'Error from USERS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const res = await sendEvent<TGetByUsernameResponse, GetByUsernameDto>(
+      this.usersClient,
+      USERS_PATTERN.GET_USER_BY_USERNAME,
+      getByUsernameDto,
+      this.logger,
+    );
+    return res;
   }
 
   async getUserByIdHash(idHash: string) {
-    let userRes: SuccessResponse<TGetByIdHashResponse>;
-    try {
-      userRes = await firstValueFrom(
-        this.usersClient.send<
-          SuccessResponse<TGetByIdHashResponse>,
-          GetByIdHashDto
-        >(USERS_PATTERN.GET_USER_BY_HASH_ID, { idHash }),
-      );
-    } catch (error) {
-      this.logger.error(
-        'Error from USERS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const userRes = await sendEvent<TGetByIdHashResponse, GetByIdHashDto>(
+      this.usersClient,
+      USERS_PATTERN.GET_USER_BY_HASH_ID,
+      { idHash },
+      this.logger,
+    );
 
     const { data: userData } = userRes;
 
@@ -171,31 +109,13 @@ export class UsersService {
   }
 
   async softDeleteUser(idHash: string) {
-    try {
-      const response = await firstValueFrom(
-        this.usersClient.send<
-          SuccessResponse<TGetByIdHashResponse>,
-          GetByIdHashDto
-        >(USERS_PATTERN.SOFT_DELETE_USER, { idHash }),
-      );
-      return response;
-    } catch (error) {
-      this.logger.error(
-        'Error from USERS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const res = await sendEvent<TSoftDeleteUserResponseDTO, SoftDeleteUserDto>(
+      this.usersClient,
+      USERS_PATTERN.SOFT_DELETE_USER,
+      { idHash },
+      this.logger,
+    );
+    return res;
   }
 
   async createUser(createUserDto: CreateUserDto) {
@@ -210,6 +130,7 @@ export class UsersService {
       userCreateRes = await this.userRegistration(userRegisterDto);
     } catch (error) {
       this.logger.error('Failed to create user, reverting registration');
+      this.userRegistrationRevert(userRegisterDto);
       throw error;
     }
     const { data: userData } = userCreateRes;
@@ -236,66 +157,26 @@ export class UsersService {
   }
 
   async getUsers(paginationDto: PaginationDto) {
-    let usersRes: SuccessResponse<TGetUsersResponse>;
-
-    try {
-      usersRes = await firstValueFrom(
-        this.usersClient.send<SuccessResponse<TGetUsersResponse>, GetUsersDto>(
-          USERS_PATTERN.GET_USERS,
-          paginationDto,
-        ),
-      );
-    } catch (error) {
-      this.logger.error(
-        'Error from USERS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const usersRes = await sendEvent<TGetUsersResponse, GetUsersDto>(
+      this.usersClient,
+      USERS_PATTERN.GET_USERS,
+      paginationDto,
+      this.logger,
+    );
 
     return usersRes.data;
   }
 
   async updateUser(updateUserDto: UpdateUserGatewayDto, idHash: string) {
-    try {
-      const response = await firstValueFrom(
-        this.usersClient.send<
-          SuccessResponse<TUpdateUserResponse>,
-          UpdateUserDto
-        >(USERS_PATTERN.UPDATE_USER, {
-          ...updateUserDto,
-          idHash,
-        }),
-      );
-
-      const { data } = response;
-      return data;
-    } catch (error) {
-      this.logger.error(
-        'Error from USERS_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          errors: errPayload.errors,
-          code: errPayload.code,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const res = await sendEvent<TUpdateUserResponse, UpdateUserDto>(
+      this.usersClient,
+      USERS_PATTERN.UPDATE_USER,
+      {
+        ...updateUserDto,
+        idHash,
+      },
+      this.logger,
+    );
+    return res.data;
   }
 }

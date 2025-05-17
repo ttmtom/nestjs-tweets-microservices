@@ -10,16 +10,9 @@ import {
   TRegisterAuthResponse,
 } from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import { ErrorResponse, SuccessResponse } from '@libs/contracts/general/dto';
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { sendEvent } from '../common/helper/send-event';
 
 @Injectable()
 export class AuthService {
@@ -32,87 +25,33 @@ export class AuthService {
 
   async insertUserAuthCred(registerAuthDto: RegisterAuthDto) {
     this.logger.log(`insertUserAuthCred ${registerAuthDto.userId}`);
-    try {
-      const response = await firstValueFrom(
-        this.authClient.send<
-          SuccessResponse<TRegisterAuthResponse>,
-          RegisterAuthDto
-        >(AUTH_PATTERN.AUTH_REGISTER, registerAuthDto),
-      );
-      return response;
-    } catch (error) {
-      this.logger.error(
-        'Error from AUTH_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          code: errPayload.code,
-          errors: errPayload.errors,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const res = await sendEvent<TRegisterAuthResponse, RegisterAuthDto>(
+      this.authClient,
+      AUTH_PATTERN.AUTH_REGISTER,
+      registerAuthDto,
+      this.logger,
+    );
+    return res;
   }
 
   async userLogin(loginAuthDto: LoginAuthDto) {
     this.logger.log(`userLogin${loginAuthDto.userId}`);
-    try {
-      const response = await firstValueFrom(
-        this.authClient.send<SuccessResponse<TLoginAuthResponse>, LoginAuthDto>(
-          AUTH_PATTERN.AUTH_LOGIN,
-          loginAuthDto,
-        ),
-      );
-      return response;
-    } catch (error) {
-      this.logger.error(
-        'Error from AUTH_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          code: errPayload.code,
-          errors: errPayload.errors,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const res = await sendEvent<TLoginAuthResponse, LoginAuthDto>(
+      this.authClient,
+      AUTH_PATTERN.AUTH_LOGIN,
+      loginAuthDto,
+      this.logger,
+    );
+    return res;
   }
 
   async getUserRole(userId: string) {
-    try {
-      const response = await firstValueFrom(
-        this.authClient.send<
-          SuccessResponse<TGetUserRoleResponse>,
-          GetUserRoleDto
-        >(AUTH_PATTERN.AUTH_GET_USER_ROLE, { userId }),
-      );
-      return response;
-    } catch (error) {
-      this.logger.error(
-        'Error from AUTH_SERVICE:',
-        JSON.stringify(error, null, 2),
-      );
-
-      const errPayload = error as ErrorResponse;
-      throw new HttpException(
-        {
-          message:
-            errPayload.message || 'An error occurred with the user service.',
-          code: errPayload.code,
-          errors: errPayload.errors,
-        },
-        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const res = await sendEvent<TGetUserRoleResponse, GetUserRoleDto>(
+      this.authClient,
+      AUTH_PATTERN.AUTH_GET_USER_ROLE,
+      { userId },
+      this.logger,
+    );
+    return res;
   }
 }
