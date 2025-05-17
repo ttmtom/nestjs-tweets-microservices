@@ -13,6 +13,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
       exceptionFactory: (validationErrors: ValidationError[] = []) => {
         const messages = validationErrors.map((error) =>
           Object.values(error.constraints || {}).join(', '),

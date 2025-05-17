@@ -1,3 +1,4 @@
+import { Trim } from '@libs/contracts/general/decorator/trim.decorator';
 import { Type } from 'class-transformer';
 import {
   IsDate,
@@ -13,15 +14,18 @@ export class RegisterDto {
     message:
       'Username must start with a letter and can only contain letters and numbers.',
   })
+  @Trim()
   username: string;
 
   @IsStrongPassword()
   password: string;
 
   @IsNotEmpty({ message: 'First name cannot be blank.' })
+  @Trim()
   firstName: string;
 
   @IsNotEmpty({ message: 'Last name cannot be blank.' })
+  @Trim()
   lastName: string;
 
   @Type(() => Date)

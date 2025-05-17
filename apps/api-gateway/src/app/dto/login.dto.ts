@@ -1,3 +1,4 @@
+import { Trim } from '@libs/contracts/general/decorator/trim.decorator';
 import { IsNotEmpty, Matches } from 'class-validator';
 
 export class LoginDto {
@@ -5,6 +6,7 @@ export class LoginDto {
     message:
       'Username must start with a letter and can only contain letters and numbers.',
   })
+  @Trim()
   username: string;
 
   @IsNotEmpty()

@@ -1,6 +1,6 @@
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
-import { RegisterUserDto } from '@libs/contracts/users/dto';
+import { RegisterUserDto, UpdateUserDto } from '@libs/contracts/users/dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
 import {
   HttpException,
@@ -115,5 +115,14 @@ export class UsersService {
       hasNextPage: page < totalPages,
       hasPrevPage: page > 1,
     };
+  }
+
+  async updateUser(updateUserDto: UpdateUserDto) {
+    const user = await this.getUserByIdHash(updateUserDto.idHash);
+
+    user.firstName = updateUserDto.firstName ?? user.firstName;
+    user.lastName = updateUserDto.lastName ?? user.lastName;
+    user.dateOfBirth = updateUserDto.dateOfBirth ?? user.dateOfBirth;
+    return this.repository.save(user);
   }
 }

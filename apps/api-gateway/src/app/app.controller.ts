@@ -1,8 +1,8 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
-import { LoginResponse, RegisterResponse } from '../auth/response';
-import { Public } from '../common/decorators/public.decorator';
+import { Public } from '../common/decorators';
 import { AppService } from './app.service';
 import { LoginDto, RegisterDto } from './dto';
+import { LoginResponse, RegisterResponse } from './response';
 
 @Controller()
 export class AppController {

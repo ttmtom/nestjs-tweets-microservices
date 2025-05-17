@@ -1,11 +1,14 @@
 import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
-import { GetByIdHashDto } from '@libs/contracts/users/dto';
+import { GetByIdHashDto, UpdateUserDto } from '@libs/contracts/users/dto';
 import { GetByUsernameDto } from '@libs/contracts/users/dto/get-by-username.dto';
 import { RegisterUserDto } from '@libs/contracts/users/dto/register-user.dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
 import { SoftDeleteUserDto } from '@libs/contracts/users/dto/soft-delete-user.dto';
-import { TGetByUsernameResponse } from '@libs/contracts/users/response';
+import {
+  TGetByUsernameResponse,
+  TUpdateUserResponse,
+} from '@libs/contracts/users/response';
 import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
 import { TGetUsersResponse } from '@libs/contracts/users/response/get-users.response';
 import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
@@ -133,5 +136,17 @@ export class UsersController {
     const paginationData = await this.usersService.getUsers(paginationDto);
 
     return paginationData;
+  }
+
+  @MessagePattern(USERS_PATTERN.UPDATE_USER)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async updateUser(
+    @Payload() updateUserDto: UpdateUserDto,
+  ): Promise<TUpdateUserResponse> {
+    this.logger.log(
+      `event: ${USERS_PATTERN.UPDATE_USER}: ${updateUserDto.idHash}`,
+    );
+    const updateUser = await this.usersService.updateUser(updateUserDto);
+    return updateUser;
   }
 }

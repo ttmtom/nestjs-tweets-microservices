@@ -3,10 +3,17 @@ import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
 import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
-import { GetByUsernameDto, RegisterUserDto } from '@libs/contracts/users/dto';
+import {
+  GetByUsernameDto,
+  RegisterUserDto,
+  UpdateUserDto,
+} from '@libs/contracts/users/dto';
 import { GetByIdHashDto } from '@libs/contracts/users/dto/get-by-id-hash.dto';
 import { GetUsersDto } from '@libs/contracts/users/dto/get-users.dto';
-import { TGetByUsernameResponse } from '@libs/contracts/users/response';
+import {
+  TGetByUsernameResponse,
+  TUpdateUserResponse,
+} from '@libs/contracts/users/response';
 import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
 import { TGetUsersResponse } from '@libs/contracts/users/response/get-users.response';
 import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
@@ -22,6 +29,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CreateUserDto } from './dto';
+import { UpdateUserGatewayDto } from './dto/update-user-gateway.dto';
 
 @Injectable()
 export class UsersService {
@@ -255,5 +263,38 @@ export class UsersService {
     }
 
     return usersRes.data;
+  }
+
+  async updateUser(updateUserDto: UpdateUserGatewayDto, idHash: string) {
+    try {
+      const response = await firstValueFrom(
+        this.usersClient.send<
+          SuccessResponse<TUpdateUserResponse>,
+          UpdateUserDto
+        >(USERS_PATTERN.UPDATE_USER, {
+          ...updateUserDto,
+          idHash,
+        }),
+      );
+
+      const { data } = response;
+      return data;
+    } catch (error) {
+      this.logger.error(
+        'Error from USERS_SERVICE:',
+        JSON.stringify(error, null, 2),
+      );
+
+      const errPayload = error as ErrorResponse;
+      throw new HttpException(
+        {
+          message:
+            errPayload.message || 'An error occurred with the user service.',
+          errors: errPayload.errors,
+          code: errPayload.code,
+        },
+        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

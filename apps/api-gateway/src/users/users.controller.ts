@@ -3,6 +3,7 @@ import { IJwtPayload } from '@libs/contracts/auth/interfaces';
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -16,11 +17,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { RegisterResponse } from '../auth/response';
+import { RegisterResponse } from '../app/response';
 import { Roles, User } from '../common/decorators';
 import { ApiGatewayAuthGuard } from '../common/guards/api-gateway-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateUserDto } from './dto';
+import { UpdateUserGatewayDto } from './dto/update-user-gateway.dto';
 import { UsersService } from './users.service';
 
 @Controller('/users')
@@ -90,9 +92,39 @@ export class UsersController {
   @Put(':id')
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN, EUserRole.USER)
-  updateUser(@Param('id') id: string) {
-    // @TODO
-    throw new Error('Method not implemented.');
+  async updateUser(
+    @Param('id') idHash: string,
+    @Body() updateUserDto: UpdateUserGatewayDto,
+    @User() user: IJwtPayload,
+  ) {
+    this.logger.log(`Updating user with ID ${idHash}`);
+    if (Object.keys(updateUserDto).length === 0 || !updateUserDto.atLeastOne) {
+      throw new BadRequestException({
+        message: 'No data provided',
+        code: ERROR_LIST.APIGATEWAY_NO_DATA_PROVIDED,
+      });
+    }
+
+    if (idHash !== user.idHash && user.role !== EUserRole.ADMIN) {
+      throw new ForbiddenException({
+        message: 'Forbidden',
+        code: ERROR_LIST.APIGATEWAY_FORBIDDEN_ACCESS,
+      });
+    }
+
+    const updateUser = await this.usersService.updateUser(
+      updateUserDto,
+      idHash,
+    );
+    return {
+      id: updateUser.idHash,
+      username: updateUser.username,
+      firstName: updateUser.firstName,
+      lastName: updateUser.lastName,
+      dateOfBirth: updateUser.dateOfBirth,
+      createdAt: updateUser.createdAt,
+      updatedAt: updateUser.updatedAt,
+    };
   }
 
   @Delete(':id')

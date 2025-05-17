@@ -17,7 +17,11 @@ async function bootstrap() {
     },
   );
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   // const reflector = app.get(Reflector);
   // app.useGlobalInterceptors(new EventResponseWrapperInterceptor(reflector));
