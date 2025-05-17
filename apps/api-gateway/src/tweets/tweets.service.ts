@@ -1,7 +1,8 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { IJwtPayload } from '@libs/contracts/auth/interfaces';
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import { PaginationDto, SuccessResponse } from '@libs/contracts/general/dto';
+import { PaginationDto } from '@libs/contracts/general/dto';
 import {
   CreateTweetDto,
   GetTweetDto,
@@ -18,7 +19,7 @@ import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
 import { GetUserByIdDto } from '@libs/contracts/users/dto';
 import { TGetUserByIdResponse } from '@libs/contracts/users/response/get-username.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { sendEvent } from '../common/helper/send-event';
 import { PostTweetDto } from './dto/post-tweet.dto';
@@ -102,15 +103,17 @@ export class TweetsService {
     );
 
     const { data: tweet } = tweetRes;
-    let deleteRes: SuccessResponse<TSoftDeleteTweetResponse>;
-    if (tweet.authorId !== user.idHash || user.role !== EUserRole.ADMIN) {
-      deleteRes = await sendEvent<TSoftDeleteTweetResponse, SoftDeleteTweetDto>(
-        this.tweetsClient,
-        TWEETS_PATTERN.SOFT_DELETE_TWEET,
-        { id },
-        this.logger,
-      );
+    if (tweet.authorId !== user.sub && user.role !== EUserRole.ADMIN) {
+      throw new ForbiddenException({
+        message: 'Forbidden',
+        code: ERROR_LIST.APIGATEWAY_FORBIDDEN_ACCESS,
+      });
     }
+
+    const deleteRes = await sendEvent<
+      TSoftDeleteTweetResponse,
+      SoftDeleteTweetDto
+    >(this.tweetsClient, TWEETS_PATTERN.SOFT_DELETE_TWEET, { id }, this.logger);
 
     return deleteRes;
   }
