@@ -12,10 +12,7 @@ export class Tweet {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', unique: true, name: 'id_hash' })
-  idHash: string;
-
-  @Column({ type: 'varchar', length: 280, nullable: false })
+  @Column({ type: 'varchar', length: 100, nullable: false })
   title: string;
 
   @Column({ type: 'text', nullable: false })
@@ -32,4 +29,10 @@ export class Tweet {
 
   @Column({ name: 'author_id', type: 'varchar', nullable: false })
   authorId: string;
+
+  constructor(title: string, content: string, authorId: string) {
+    this.title = title;
+    this.content = content;
+    this.authorId = authorId;
+  }
 }
