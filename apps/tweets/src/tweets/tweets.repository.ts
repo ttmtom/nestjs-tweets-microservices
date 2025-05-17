@@ -41,9 +41,6 @@ export class TweetsRepository {
   }
 
   async softDeleteByAuthorId(authorId: string): Promise<void> {
-    const results = await this.repository.softDelete({ authorId });
-    console.log('--- results');
-    console.log(results);
-    results.generatedMaps.forEach(console.log);
+    await this.repository.softDelete({ authorId });
   }
 }
