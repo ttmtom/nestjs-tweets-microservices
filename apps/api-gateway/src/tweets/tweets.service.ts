@@ -20,6 +20,8 @@ export class TweetsService {
   constructor(
     @Inject(SERVICE_LIST.TWEETS_SERVICE)
     private readonly tweetsClient: ClientProxy,
+    @Inject(SERVICE_LIST.USERS_SERVICE)
+    private readonly usersClient: ClientProxy,
   ) {}
 
   async postTweet(postTweetDto: PostTweetDto, userId: string) {

@@ -3,4 +3,6 @@ export type TCreateTweetResponse = {
   title: string;
   content: string;
   authorId: string;
+  createdAt: Date;
+  updatedAt: Date;
 };

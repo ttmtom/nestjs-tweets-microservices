@@ -44,13 +44,19 @@ export class TweetsController {
     @Body() postTweetDto: PostTweetDto,
     @User() user: IJwtPayload,
   ) {
-    this.logger.log(`post tweet ${user.username}`);
+    this.logger.log(`post tweet username: ${user.username}`);
     const tweet = await this.tweetsService.postTweet(postTweetDto, user.sub);
     return {
       id: tweet.id,
       authorId: tweet.authorId,
       title: tweet.title,
       content: tweet.content,
+      updatedAt: tweet.updatedAt,
+      createdAt: tweet.createdAt,
+      own: {
+        userId: user.idHash,
+        username: user.username,
+      },
     };
   }
 

@@ -32,6 +32,18 @@ import { TweetsService } from './tweets.service';
         }),
         inject: [ConfigService],
       },
+      {
+        name: SERVICE_LIST.USERS_SERVICE,
+        imports: [ConfigModule],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get<string>('USERS_SERVICE_HOST'),
+            port: configService.get<number>('USERS_SERVICE_PORT'),
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
   ],
   controllers: [TweetsController],

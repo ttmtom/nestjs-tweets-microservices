@@ -16,8 +16,8 @@ import { UsersService } from './users.service';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: configService.get<string>('USER_SERVICE_HOST'),
-            port: configService.get<number>('USER_SERVICE_PORT'),
+            host: configService.get<string>('USERS_SERVICE_HOST'),
+            port: configService.get<number>('USERS_SERVICE_PORT'),
           },
         }),
         inject: [ConfigService],
