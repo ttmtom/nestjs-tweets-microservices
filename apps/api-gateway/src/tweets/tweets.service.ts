@@ -1,15 +1,19 @@
+import { EUserRole } from '@libs/contracts/auth/enums';
+import { IJwtPayload } from '@libs/contracts/auth/interfaces';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import { PaginationDto } from '@libs/contracts/general/dto';
+import { PaginationDto, SuccessResponse } from '@libs/contracts/general/dto';
 import {
   CreateTweetDto,
   GetTweetDto,
   GetTweetsDto,
+  SoftDeleteTweetDto,
 } from '@libs/contracts/tweets/dto';
 import {
   TCreateTweetResponse,
   TGetTweetResponse,
   TGetTweetsResponse,
 } from '@libs/contracts/tweets/response';
+import { TSoftDeleteTweetResponse } from '@libs/contracts/tweets/response/soft-delete-tweet.response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
 import { GetUserByIdDto } from '@libs/contracts/users/dto';
 import { TGetUserByIdResponse } from '@libs/contracts/users/response/get-username.response';
@@ -22,6 +26,7 @@ import { PostTweetDto } from './dto/post-tweet.dto';
 @Injectable()
 export class TweetsService {
   private readonly logger = new Logger(TweetsService.name);
+
   constructor(
     @Inject(SERVICE_LIST.TWEETS_SERVICE)
     private readonly tweetsClient: ClientProxy,
@@ -86,5 +91,27 @@ export class TweetsService {
     );
 
     return { tweet, author: userRes.data };
+  }
+
+  async softDeleteTweet(id: string, user: IJwtPayload) {
+    const tweetRes = await sendEvent<TGetTweetResponse, GetTweetDto>(
+      this.tweetsClient,
+      TWEETS_PATTERN.GET_TWEET,
+      { id },
+      this.logger,
+    );
+
+    const { data: tweet } = tweetRes;
+    let deleteRes: SuccessResponse<TSoftDeleteTweetResponse>;
+    if (tweet.authorId !== user.idHash || user.role !== EUserRole.ADMIN) {
+      deleteRes = await sendEvent<TSoftDeleteTweetResponse, SoftDeleteTweetDto>(
+        this.tweetsClient,
+        TWEETS_PATTERN.SOFT_DELETE_TWEET,
+        { id },
+        this.logger,
+      );
+    }
+
+    return deleteRes;
   }
 }

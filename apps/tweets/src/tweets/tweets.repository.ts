@@ -35,4 +35,15 @@ export class TweetsRepository {
 
     return tweet;
   }
+
+  async save(tweet: Tweet): Promise<Tweet> {
+    return this.repository.save(tweet);
+  }
+
+  async softDeleteByAuthorId(authorId: string): Promise<void> {
+    const results = await this.repository.softDelete({ authorId });
+    console.log('--- results');
+    console.log(results);
+    results.generatedMaps.forEach(console.log);
+  }
 }

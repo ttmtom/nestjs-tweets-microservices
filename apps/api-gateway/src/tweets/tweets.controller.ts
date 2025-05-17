@@ -98,5 +98,8 @@ export class TweetsController {
   @Delete(':id')
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN, EUserRole.USER)
-  async deleteTweets() {}
+  async deleteTweets(@Param('id') id: string, @User() user: IJwtPayload) {
+    this.logger.log(`Deleting tweet with id ${id}`);
+    await this.tweetsService.softDeleteTweet(id, user);
+  }
 }

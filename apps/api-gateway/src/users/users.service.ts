@@ -6,6 +6,9 @@ import {
 } from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { PaginationDto, SuccessResponse } from '@libs/contracts/general/dto';
+import { SoftDeleteTweetByAuthorDto } from '@libs/contracts/tweets/dto';
+import { TSoftDeleteTweetByAuthorResponse } from '@libs/contracts/tweets/response';
+import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
 import {
   GetByIdHashDto,
   GetByUsernameDto,
@@ -40,6 +43,8 @@ export class UsersService {
     private readonly usersClient: ClientProxy,
     @Inject(SERVICE_LIST.AUTH_SERVICE)
     private readonly authClient: ClientProxy,
+    @Inject(SERVICE_LIST.TWEETS_SERVICE)
+    private readonly tweetsClient: ClientProxy,
   ) {}
 
   async userRegistration(userDto: RegisterUserDto) {
@@ -122,6 +127,15 @@ export class UsersService {
       { idHash },
       this.logger,
     );
+
+    if (res.success && res.data.success) {
+      this.tweetsClient.emit<
+        SuccessResponse<TSoftDeleteTweetByAuthorResponse>,
+        SoftDeleteTweetByAuthorDto
+      >(TWEETS_PATTERN.SOFT_DELETE_TWEET_BY_AUTHOR, {
+        authorId: res.data.user.id,
+      });
+    }
     return res;
   }
 

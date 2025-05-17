@@ -129,6 +129,7 @@ export class UsersController {
     const result = await this.usersService.softDelete(softDeleteDto.idHash);
     return {
       success: !!result.deletedAt,
+      user: result,
     };
   }
 

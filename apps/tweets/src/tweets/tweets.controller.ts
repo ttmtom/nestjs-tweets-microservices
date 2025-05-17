@@ -1,14 +1,25 @@
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { PaginationDto } from '@libs/contracts/general/dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
-import { GetTweetDto } from '@libs/contracts/tweets/dto';
+import {
+  GetTweetDto,
+  SoftDeleteTweetByAuthorDto,
+  SoftDeleteTweetDto,
+} from '@libs/contracts/tweets/dto';
 import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
 import {
   TCreateTweetResponse,
   TGetTweetResponse,
   TGetTweetsResponse,
 } from '@libs/contracts/tweets/response';
+import { TSoftDeleteTweetResponse } from '@libs/contracts/tweets/response/soft-delete-tweet.response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
-import { Controller, Logger, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Logger,
+  NotFoundException,
+  UseInterceptors,
+} from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TweetsService } from './tweets.service';
 
@@ -46,9 +57,39 @@ export class TweetsController {
   async getTweet(
     @Payload() getTweetDto: GetTweetDto,
   ): Promise<TGetTweetResponse> {
-    this.logger.log(`event: ${TWEETS_PATTERN.GET_TWEET}`);
-    const tweet = await this.tweetsService.getTweet(getTweetDto);
+    this.logger.log(`event: ${TWEETS_PATTERN.GET_TWEET} ${getTweetDto.id}`);
+    const tweet = await this.tweetsService.getTweet(getTweetDto.id);
 
+    if (!tweet) {
+      throw new NotFoundException({
+        message: 'Tweet not found',
+        code: ERROR_LIST.TWEET_NOT_FOUND,
+      });
+    }
     return tweet;
+  }
+
+  @MessagePattern(TWEETS_PATTERN.SOFT_DELETE_TWEET)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async softDeleteTweet(
+    @Payload() softDeleteTweetDto: SoftDeleteTweetDto,
+  ): Promise<TSoftDeleteTweetResponse> {
+    this.logger.log(`event: ${TWEETS_PATTERN.SOFT_DELETE_TWEET}`);
+    const tweet = await this.tweetsService.softDelete(softDeleteTweetDto.id);
+
+    return {
+      success: !!tweet.deletedAt,
+    };
+  }
+
+  @MessagePattern(TWEETS_PATTERN.SOFT_DELETE_TWEET_BY_AUTHOR)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async softDeleteTweetByAuthor(
+    @Payload() softDeleteTweetByAuthorDto: SoftDeleteTweetByAuthorDto,
+  ): Promise<void> {
+    this.logger.log(`event: ${TWEETS_PATTERN.SOFT_DELETE_TWEET_BY_AUTHOR}`);
+    await this.tweetsService.softDeleteByAuthor(
+      softDeleteTweetByAuthorDto.authorId,
+    );
   }
 }

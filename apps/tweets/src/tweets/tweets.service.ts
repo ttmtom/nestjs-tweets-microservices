@@ -1,5 +1,4 @@
 import { PaginationDto } from '@libs/contracts/general/dto';
-import { GetTweetDto } from '@libs/contracts/tweets/dto';
 import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { Tweet } from '../database/entities';
@@ -38,8 +37,18 @@ export class TweetsService {
     };
   }
 
-  async getTweet(getTweetDto: GetTweetDto) {
-    const tweet = await this.repository.findById(getTweetDto.id);
+  async getTweet(id: string) {
+    const tweet = await this.repository.findById(id);
     return tweet;
+  }
+
+  async softDelete(id: string): Promise<Tweet> {
+    const tweet = await this.getTweet(id);
+    tweet.deletedAt = new Date();
+    return this.repository.save(tweet);
+  }
+
+  async softDeleteByAuthor(authorId: string): Promise<void> {
+    await this.repository.softDeleteByAuthorId(authorId);
   }
 }
