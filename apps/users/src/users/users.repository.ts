@@ -37,4 +37,15 @@ export class UsersRepository {
   async save(user: User): Promise<User> {
     return this.repository.save(user);
   }
+
+  async findAll(page: number, limit: number): Promise<[User[], number]> {
+    const skip = (page - 1) * limit;
+
+    const [users, totalCount] = await this.repository.findAndCount({
+      skip: skip,
+      take: limit,
+    });
+
+    return [users, totalCount];
+  }
 }

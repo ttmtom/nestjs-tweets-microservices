@@ -1,6 +1,7 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { IJwtPayload } from '@libs/contracts/auth/interfaces';
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
+import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import {
   Body,
   Controller,
@@ -12,11 +13,11 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RegisterResponse } from '../auth/response';
-import { Roles } from '../common/decorators/role.decorator';
-import { User } from '../common/decorators/user.decorator';
+import { Roles, User } from '../common/decorators';
 import { ApiGatewayAuthGuard } from '../common/guards/api-gateway-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreateUserDto } from './dto';
@@ -34,9 +35,20 @@ export class UsersController {
   @Get()
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN)
-  async getUsers() {
-    // @TODO
-    throw new Error('Method not implemented.');
+  async getUsers(@Query() paginationDto: PaginationDto) {
+    const users = await this.usersService.getUsers(paginationDto);
+    return {
+      ...users,
+      data: users.data.map((user) => ({
+        id: user.idHash,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        dateOfBirth: user.dateOfBirth,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      })),
+    };
   }
 
   @Post()

@@ -1,3 +1,4 @@
+import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
 import { GetByIdHashDto } from '@libs/contracts/users/dto';
 import { GetByUsernameDto } from '@libs/contracts/users/dto/get-by-username.dto';
@@ -6,6 +7,7 @@ import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register
 import { SoftDeleteUserDto } from '@libs/contracts/users/dto/soft-delete-user.dto';
 import { TGetByUsernameResponse } from '@libs/contracts/users/response';
 import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
+import { TGetUsersResponse } from '@libs/contracts/users/response/get-users.response';
 import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import { TRevertRegisterUserResponse } from '@libs/contracts/users/response/revert-register-user.response';
 import { TSoftDeleteUserResponseDTO } from '@libs/contracts/users/response/soft-delete-user.response';
@@ -120,5 +122,16 @@ export class UsersController {
     return {
       success: !!result.deletedAt,
     };
+  }
+
+  @MessagePattern(USERS_PATTERN.GET_USERS)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getUsers(
+    @Payload() paginationDto: PaginationDto,
+  ): Promise<TGetUsersResponse> {
+    this.logger.log(`event: ${USERS_PATTERN.GET_USERS}`);
+    const paginationData = await this.usersService.getUsers(paginationDto);
+
+    return paginationData;
   }
 }

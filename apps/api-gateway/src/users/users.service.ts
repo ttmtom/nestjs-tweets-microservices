@@ -1,11 +1,14 @@
 import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
+import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
 import { GetByUsernameDto, RegisterUserDto } from '@libs/contracts/users/dto';
 import { GetByIdHashDto } from '@libs/contracts/users/dto/get-by-id-hash.dto';
+import { GetUsersDto } from '@libs/contracts/users/dto/get-users.dto';
 import { TGetByUsernameResponse } from '@libs/contracts/users/response';
 import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
+import { TGetUsersResponse } from '@libs/contracts/users/response/get-users.response';
 import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import {
@@ -221,5 +224,36 @@ export class UsersService {
       user: userData,
       auth: authData,
     };
+  }
+
+  async getUsers(paginationDto: PaginationDto) {
+    let usersRes: SuccessResponse<TGetUsersResponse>;
+
+    try {
+      usersRes = await firstValueFrom(
+        this.usersClient.send<SuccessResponse<TGetUsersResponse>, GetUsersDto>(
+          USERS_PATTERN.GET_USERS,
+          paginationDto,
+        ),
+      );
+    } catch (error) {
+      this.logger.error(
+        'Error from USERS_SERVICE:',
+        JSON.stringify(error, null, 2),
+      );
+
+      const errPayload = error as ErrorResponse;
+      throw new HttpException(
+        {
+          message:
+            errPayload.message || 'An error occurred with the user service.',
+          errors: errPayload.errors,
+          code: errPayload.code,
+        },
+        errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return usersRes.data;
   }
 }

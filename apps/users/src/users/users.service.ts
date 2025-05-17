@@ -1,4 +1,5 @@
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
+import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
 import { RegisterUserDto } from '@libs/contracts/users/dto';
 import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
 import {
@@ -97,5 +98,22 @@ export class UsersService {
     const user = await this.getUserByIdHash(idHash);
     user.deletedAt = new Date();
     return this.repository.save(user);
+  }
+
+  async getUsers(paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+
+    const [users, totalCount] = await this.repository.findAll(page, limit);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data: users,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
   }
 }
