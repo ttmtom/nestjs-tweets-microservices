@@ -1,3 +1,4 @@
+import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
 import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
@@ -17,6 +18,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { CreateUserDto } from './dto';
 
 @Injectable()
 export class UsersService {
@@ -182,5 +184,42 @@ export class UsersService {
         errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async createUser(createUserDto: CreateUserDto) {
+    const userRegisterDto = new RegisterUserDto(
+      createUserDto.username,
+      createUserDto.firstName,
+      createUserDto.lastName,
+      createUserDto.dateOfBirth,
+    );
+    let userCreateRes: SuccessResponse<TRegisterUserResponse>;
+    try {
+      userCreateRes = await this.userRegistration(userRegisterDto);
+    } catch (error) {
+      this.logger.error('Failed to create user, reverting registration');
+      throw error;
+    }
+    const { data: userData } = userCreateRes;
+
+    let authCred: SuccessResponse<TRegisterAuthResponse>;
+    try {
+      authCred = await this.authService.insertUserAuthCred({
+        userId: userData.id,
+        password: createUserDto.password,
+        role: createUserDto.role,
+      });
+    } catch (error) {
+      this.logger.error(
+        'Failed to create user auth credentials, revert user creation',
+      );
+      this.userRegistrationRevert(userRegisterDto);
+      throw error;
+    }
+    const { data: authData } = authCred;
+    return {
+      user: userData,
+      auth: authData,
+    };
   }
 }

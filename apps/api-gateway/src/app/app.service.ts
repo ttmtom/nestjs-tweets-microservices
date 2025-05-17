@@ -12,8 +12,8 @@ import {
 } from '@libs/contracts/users/response';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
-import { LoginDto, RegisterDto } from '../auth/dto';
 import { UsersService } from '../users/users.service';
+import { LoginDto, RegisterDto } from './dto';
 
 @Injectable()
 export class AppService {

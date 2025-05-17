@@ -1,8 +1,8 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { Logger } from '@nestjs/common';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { RegisterDto } from '../auth/dto';
 import { AppService } from './app.service';
+import { RegisterDto } from './dto';
 
 interface ICreateAdminCommandOptions {
   username?: string;
