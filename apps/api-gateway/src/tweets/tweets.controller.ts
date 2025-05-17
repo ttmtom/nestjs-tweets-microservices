@@ -1,5 +1,6 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { IJwtPayload } from '@libs/contracts/auth/interfaces';
+import { PaginationDto } from '@libs/contracts/general/dto';
 import {
   Body,
   Controller,
@@ -9,6 +10,7 @@ import {
   Logger,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Roles, User } from '../common/decorators';
@@ -28,8 +30,26 @@ export class TweetsController {
 
   @Get()
   @UseGuards(ApiGatewayAuthGuard)
-  async getTweets(): Promise<string> {
-    return 'Hello World!';
+  async getTweets(
+    @Query() paginationDto: PaginationDto,
+    @User() user: IJwtPayload,
+  ) {
+    const tweets = await this.tweetsService.getTweets(paginationDto);
+    return {
+      ...tweets,
+      data: tweets.data.map((tweet) => ({
+        id: tweet.id,
+        authorId: tweet.authorId,
+        title: tweet.title,
+        content: tweet.content,
+        updatedAt: tweet.updatedAt,
+        createdAt: tweet.createdAt,
+        own: {
+          userId: user.idHash,
+          username: user.username,
+        },
+      })),
+    };
   }
 
   @Get(':id')

@@ -1,6 +1,10 @@
+import { PaginationDto } from '@libs/contracts/general/dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
 import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
-import { TCreateTweetResponse } from '@libs/contracts/tweets/response';
+import {
+  TCreateTweetResponse,
+  TGetTweetsResponse,
+} from '@libs/contracts/tweets/response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
 import { Controller, Logger, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
@@ -22,5 +26,16 @@ export class TweetsController {
     );
     const newTweet = await this.tweetsService.createNewTweet(createTweetDto);
     return newTweet;
+  }
+
+  @MessagePattern(TWEETS_PATTERN.GET_TWEETS)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async getTweets(
+    @Payload() paginationDto: PaginationDto,
+  ): Promise<TGetTweetsResponse> {
+    this.logger.log(`event: ${TWEETS_PATTERN.GET_TWEETS}`);
+    const paginationData = await this.tweetsService.getTweets(paginationDto);
+
+    return paginationData;
   }
 }

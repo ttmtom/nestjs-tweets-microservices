@@ -44,6 +44,8 @@ export class UsersRepository {
     const [users, totalCount] = await this.repository.findAndCount({
       skip: skip,
       take: limit,
+      order: { createdAt: 'DESC' },
+      where: { deletedAt: IsNull() },
     });
 
     return [users, totalCount];
