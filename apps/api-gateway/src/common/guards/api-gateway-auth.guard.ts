@@ -5,6 +5,7 @@ import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
 import { GetByIdHashDto } from '@libs/contracts/users/dto';
 import { TGetByIdHashResponse } from '@libs/contracts/users/response';
+import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import {
   CanActivate,
   ExecutionContext,
@@ -55,7 +56,7 @@ export class ApiGatewayAuthGuard implements CanActivate {
 
     await sendEvent<TGetByIdHashResponse, GetByIdHashDto>(
       this.usersClient,
-      AUTH_PATTERN.AUTH_VALIDATE_TOKEN,
+      USERS_PATTERN.GET_USER_BY_HASH_ID,
       {
         idHash: userPayload.user.idHash,
       },
