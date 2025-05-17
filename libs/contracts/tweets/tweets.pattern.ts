@@ -4,4 +4,5 @@ export const TWEETS_PATTERN = {
   GET_TWEET: 'tweets.get-tweet',
   SOFT_DELETE_TWEET: 'tweets.soft-delete-tweet',
   SOFT_DELETE_TWEET_BY_AUTHOR: 'tweets.soft-delete-tweet-by-author',
+  UPDATE_TWEET: 'tweets.update-tweet',
 };

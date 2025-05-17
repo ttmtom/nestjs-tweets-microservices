@@ -1,7 +1,9 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { IJwtPayload } from '@libs/contracts/auth/interfaces';
+import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { PaginationDto } from '@libs/contracts/general/dto';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -17,6 +19,7 @@ import {
 import { Roles, User } from '../common/decorators';
 import { ApiGatewayAuthGuard } from '../common/guards/api-gateway-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { UpdateTweetGatewayDto } from './dto';
 import { PostTweetDto } from './dto/post-tweet.dto';
 import { TweetsService } from './tweets.service';
 
@@ -93,7 +96,41 @@ export class TweetsController {
   @Put(':id')
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)
   @Roles(EUserRole.ADMIN, EUserRole.USER)
-  async updateTweet() {}
+  async updateTweet(
+    @Param('id') id: string,
+    @User() user: IJwtPayload,
+    @Body() updateTweetGatewayDto: UpdateTweetGatewayDto,
+  ) {
+    this.logger.log(`Update tweet with id ${id}`);
+    if (
+      Object.keys(updateTweetGatewayDto).length === 0 ||
+      !updateTweetGatewayDto.atLeastOne
+    ) {
+      throw new BadRequestException({
+        message: 'No data provided',
+        code: ERROR_LIST.APIGATEWAY_NO_DATA_PROVIDED,
+      });
+    }
+
+    const { tweet, author } = await this.tweetsService.updateTweet(
+      updateTweetGatewayDto,
+      id,
+      user,
+    );
+
+    return {
+      id: tweet.id,
+      authorId: tweet.authorId,
+      title: tweet.title,
+      content: tweet.content,
+      updatedAt: tweet.updatedAt,
+      createdAt: tweet.createdAt,
+      own: {
+        userId: author.idHash,
+        username: author.username,
+      },
+    };
+  }
 
   @Delete(':id')
   @UseGuards(ApiGatewayAuthGuard, RolesGuard)

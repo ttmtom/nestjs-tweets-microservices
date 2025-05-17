@@ -5,12 +5,14 @@ import {
   GetTweetDto,
   SoftDeleteTweetByAuthorDto,
   SoftDeleteTweetDto,
+  UpdateTweetDto,
 } from '@libs/contracts/tweets/dto';
 import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
 import {
   TCreateTweetResponse,
   TGetTweetResponse,
   TGetTweetsResponse,
+  TUpdateTweetResponse,
 } from '@libs/contracts/tweets/response';
 import { TSoftDeleteTweetResponse } from '@libs/contracts/tweets/response/soft-delete-tweet.response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
@@ -91,5 +93,15 @@ export class TweetsController {
     await this.tweetsService.softDeleteByAuthor(
       softDeleteTweetByAuthorDto.authorId,
     );
+  }
+
+  @MessagePattern(TWEETS_PATTERN.UPDATE_TWEET)
+  @UseInterceptors(EventResponseWrapperInterceptor)
+  async updateTweet(
+    @Payload() updateTweetDto: UpdateTweetDto,
+  ): Promise<TUpdateTweetResponse> {
+    this.logger.log(`event: ${TWEETS_PATTERN.UPDATE_TWEET}`);
+    const updatedTweet = await this.tweetsService.updateTweet(updateTweetDto);
+    return updatedTweet;
   }
 }

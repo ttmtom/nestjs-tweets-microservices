@@ -8,11 +8,13 @@ import {
   GetTweetDto,
   GetTweetsDto,
   SoftDeleteTweetDto,
+  UpdateTweetDto,
 } from '@libs/contracts/tweets/dto';
 import {
   TCreateTweetResponse,
   TGetTweetResponse,
   TGetTweetsResponse,
+  TUpdateTweetResponse,
 } from '@libs/contracts/tweets/response';
 import { TSoftDeleteTweetResponse } from '@libs/contracts/tweets/response/soft-delete-tweet.response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
@@ -22,6 +24,7 @@ import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { sendEvent } from '../common/helper/send-event';
+import { UpdateTweetGatewayDto } from './dto';
 import { PostTweetDto } from './dto/post-tweet.dto';
 
 @Injectable()
@@ -116,5 +119,28 @@ export class TweetsService {
     >(this.tweetsClient, TWEETS_PATTERN.SOFT_DELETE_TWEET, { id }, this.logger);
 
     return deleteRes;
+  }
+
+  async updateTweet(
+    updateTweetDto: UpdateTweetGatewayDto,
+    id: string,
+    user: IJwtPayload,
+  ) {
+    const tweet = await this.getTweet(id);
+    if (tweet.author.id !== user.sub && user.role !== EUserRole.ADMIN) {
+      throw new ForbiddenException({
+        message: 'Forbidden',
+        code: ERROR_LIST.APIGATEWAY_FORBIDDEN_ACCESS,
+      });
+    }
+
+    const updateRes = await sendEvent<TUpdateTweetResponse, UpdateTweetDto>(
+      this.tweetsClient,
+      TWEETS_PATTERN.UPDATE_TWEET,
+      { ...updateTweetDto, id },
+      this.logger,
+    );
+
+    return { tweet: updateRes.data, author: tweet.author };
   }
 }
