@@ -1,22 +1,24 @@
 import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
-import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
-import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
 import {
+  ErrorResponse,
+  PaginationDto,
+  SuccessResponse,
+} from '@libs/contracts/general/dto';
+import {
+  GetByIdHashDto,
   GetByUsernameDto,
+  GetUsersDto,
   RegisterUserDto,
   UpdateUserDto,
 } from '@libs/contracts/users/dto';
-import { GetByIdHashDto } from '@libs/contracts/users/dto/get-by-id-hash.dto';
-import { GetUsersDto } from '@libs/contracts/users/dto/get-users.dto';
 import {
+  TGetByIdHashResponse,
   TGetByUsernameResponse,
+  TGetUsersResponse,
+  TRegisterUserResponse,
   TUpdateUserResponse,
 } from '@libs/contracts/users/response';
-import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
-import { TGetUsersResponse } from '@libs/contracts/users/response/get-users.response';
-import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import {
   HttpException,
@@ -28,8 +30,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { CreateUserDto } from './dto';
-import { UpdateUserGatewayDto } from './dto/update-user-gateway.dto';
+import { CreateUserDto, UpdateUserGatewayDto } from './dto';
 
 @Injectable()
 export class UsersService {

@@ -34,24 +34,14 @@ export class ApiGatewayAuthGuard implements CanActivate {
       throw new UnauthorizedException('Authorization token not found.');
     }
 
+    let validateRes: SuccessResponse<TValidateTokenResponse>;
     try {
-      const validateRes = await firstValueFrom(
+      validateRes = await firstValueFrom(
         this.authClient.send<
           SuccessResponse<TValidateTokenResponse>,
           ValidateTokenDto
         >(AUTH_PATTERN.AUTH_VALIDATE_TOKEN, { token }),
       );
-
-      const { data: userPayload } = validateRes;
-      if (!userPayload || !userPayload.user) {
-        throw new UnauthorizedException({
-          message: 'Invalid token',
-          code: ERROR_LIST.APIGATEWAY_UNAUTHORIZED,
-        });
-      }
-
-      request.user = userPayload.user;
-      return true;
     } catch (error) {
       this.logger.error(
         'Error from AUTH_SERVICE:',
@@ -69,6 +59,17 @@ export class ApiGatewayAuthGuard implements CanActivate {
         errPayload.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    const { data: userPayload } = validateRes;
+    if (!userPayload || !userPayload.user) {
+      throw new UnauthorizedException({
+        message: 'Invalid token',
+        code: ERROR_LIST.APIGATEWAY_UNAUTHORIZED,
+      });
+    }
+
+    request.user = userPayload.user;
+    return true;
   }
 
   private extractTokenFromHeader(request: any): string | undefined {

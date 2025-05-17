@@ -1,7 +1,7 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { IJwtPayload } from '@libs/contracts/auth/interfaces';
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
-import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
+import { PaginationDto } from '@libs/contracts/general/dto';
 import {
   BadRequestException,
   Body,
@@ -21,8 +21,7 @@ import { RegisterResponse } from '../app/response';
 import { Roles, User } from '../common/decorators';
 import { ApiGatewayAuthGuard } from '../common/guards/api-gateway-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { CreateUserDto } from './dto';
-import { UpdateUserGatewayDto } from './dto/update-user-gateway.dto';
+import { CreateUserDto, UpdateUserGatewayDto } from './dto';
 import { UsersService } from './users.service';
 
 @Controller('/users')

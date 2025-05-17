@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities';
+import { Tweet } from './entities';
 
 @Module({
   imports: [
@@ -10,12 +10,12 @@ import { User } from './entities';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('USERS_DB_HOST'),
-        port: configService.get('USERS_DB_PORT'),
-        username: configService.get('USERS_DB_USERNAME'),
-        password: configService.get('USERS_DB_PASSWORD'),
+        host: configService.get('TWEETS_DB_HOST'),
+        port: configService.get('TWEETS_DB_PORT'),
+        username: configService.get('TWEETS_DB_USERNAME'),
+        password: configService.get('TWEETS_DB_PASSWORD'),
         database: 'postgres',
-        entities: [User],
+        entities: [Tweet],
       }),
     }),
   ],

@@ -1,19 +1,22 @@
-import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
+import { PaginationDto } from '@libs/contracts/general/dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
-import { GetByIdHashDto, UpdateUserDto } from '@libs/contracts/users/dto';
-import { GetByUsernameDto } from '@libs/contracts/users/dto/get-by-username.dto';
-import { RegisterUserDto } from '@libs/contracts/users/dto/register-user.dto';
-import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
-import { SoftDeleteUserDto } from '@libs/contracts/users/dto/soft-delete-user.dto';
 import {
+  GetByIdHashDto,
+  GetByUsernameDto,
+  RegisterUserDto,
+  RevertRegisterUserDto,
+  SoftDeleteUserDto,
+  UpdateUserDto,
+} from '@libs/contracts/users/dto';
+import {
+  TGetByIdHashResponse,
   TGetByUsernameResponse,
+  TGetUsersResponse,
+  TRegisterUserResponse,
+  TRevertRegisterUserResponse,
+  TSoftDeleteUserResponseDTO,
   TUpdateUserResponse,
 } from '@libs/contracts/users/response';
-import { TGetByIdHashResponse } from '@libs/contracts/users/response/get-by-id-hash.response';
-import { TGetUsersResponse } from '@libs/contracts/users/response/get-users.response';
-import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
-import { TRevertRegisterUserResponse } from '@libs/contracts/users/response/revert-register-user.response';
-import { TSoftDeleteUserResponseDTO } from '@libs/contracts/users/response/soft-delete-user.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { Controller, Logger, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';

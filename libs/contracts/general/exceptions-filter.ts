@@ -1,5 +1,5 @@
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
-import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
+import { ErrorResponse } from '@libs/contracts/general/dto';
 import {
   ArgumentsHost,
   Catch,

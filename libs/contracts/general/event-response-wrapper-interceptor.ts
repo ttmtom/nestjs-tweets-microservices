@@ -1,4 +1,4 @@
-import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
+import { SuccessResponse } from '@libs/contracts/general/dto';
 import {
   CallHandler,
   ExecutionContext,

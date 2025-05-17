@@ -1,3 +1,3 @@
-import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
+import { PaginationDto } from '@libs/contracts/general/dto';
 
 export class GetUsersDto extends PaginationDto {}

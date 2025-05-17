@@ -1,6 +1,6 @@
 import { EUserRole } from '@libs/contracts/auth/enums';
 import { TRegisterAuthResponse } from '@libs/contracts/auth/response';
-import { TRegisterUserResponse } from '@libs/contracts/users/response/register-user.response';
+import { TRegisterUserResponse } from '@libs/contracts/users/response';
 
 export class RegisterResponse {
   id: string;

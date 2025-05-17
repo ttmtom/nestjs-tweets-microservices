@@ -1,7 +1,10 @@
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
-import { PaginationDto } from '@libs/contracts/general/dto/pagination.dto';
-import { RegisterUserDto, UpdateUserDto } from '@libs/contracts/users/dto';
-import { RevertRegisterUserDto } from '@libs/contracts/users/dto/revert-register-user.dto';
+import { PaginationDto } from '@libs/contracts/general/dto';
+import {
+  RegisterUserDto,
+  RevertRegisterUserDto,
+  UpdateUserDto,
+} from '@libs/contracts/users/dto';
 import {
   HttpException,
   HttpStatus,

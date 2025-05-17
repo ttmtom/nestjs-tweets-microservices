@@ -1,15 +1,16 @@
 import { AUTH_PATTERN } from '@libs/contracts/auth/auth.pattern';
-import { GetUserRoleDto } from '@libs/contracts/auth/dto';
-import { LoginAuthDto } from '@libs/contracts/auth/dto/login-auth.dto';
-import { RegisterAuthDto } from '@libs/contracts/auth/dto/register-auth.dto';
 import {
+  GetUserRoleDto,
+  LoginAuthDto,
+  RegisterAuthDto,
+} from '@libs/contracts/auth/dto';
+import {
+  TGetUserRoleResponse,
   TLoginAuthResponse,
   TRegisterAuthResponse,
 } from '@libs/contracts/auth/response';
-import { TGetUserRoleResponse } from '@libs/contracts/auth/response/get-user-role.response';
 import { SERVICE_LIST } from '@libs/contracts/constants/service-list';
-import { ErrorResponse } from '@libs/contracts/general/dto/error-response.dto';
-import { SuccessResponse } from '@libs/contracts/general/dto/success-response.dto';
+import { ErrorResponse, SuccessResponse } from '@libs/contracts/general/dto';
 import {
   HttpException,
   HttpStatus,
