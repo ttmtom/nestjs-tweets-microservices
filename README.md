@@ -1,5 +1,4 @@
-## Project Title
-**Simple tweet backend system**
+# Simple tweet backend system
 
 ## Description
 
@@ -38,6 +37,19 @@ Communication: The API Gateway will communicate with the Auth, User and Tweet se
 3. run the `start.sh` script
 4. (Optional) run `npm run cli create:admin -- -u ${username} -p ${strongPassword}` to create first admin user
 5. have fun
+
+## Test
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests (not ready)
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
 
 ## Api endpoints
 
@@ -143,16 +155,7 @@ Communication: The API Gateway will communicate with the Auth, User and Tweet se
 
     Response:
 
-    | Field       | Type   | Description                                                   |
-    |-------------|--------|---------------------------------------------------------------|
-    | id          | string | Unique identifier for the created user.                       |
-    | username    | string | The created user's username.                                  |
-    | firstName   | string | The created user's first name.                                |
-    | lastName    | string | The created user's last name.                                 |
-    | dateOfBirth | Date   | The created user's date of birth (ISO 8601 format with time). |
-    | role        | string | The created user's role (e.g., "USER", "ADMIN").              |
-    | createdAt   | Date   | Timestamp indicating when the user account was created.       |
-    | updatedAt   | Date   | Timestamp indicating when the user account was last updated.  |
+    ref to User Object
 3. **GET /users/:id**
     * Retrieves the profile information for a specific user by their unique hashed ID
     * Requires authentication (valid JWT)
@@ -305,22 +308,10 @@ Communication: The API Gateway will communicate with the Auth, User and Tweet se
     | id        | string / number | Yes      | The unique identifier of the tweet to delete. |
 
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
 ## Improvement
 
 1. setup migration stage instead of docker start sql
 2. setup mq 
 3. setup microservice dockerfile for deployment
+4. complete e2e test
  
