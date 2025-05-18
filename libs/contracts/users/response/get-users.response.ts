@@ -1,4 +1,4 @@
-import { PaginatedResultResponse } from '@libs/contracts/general/response/paginated-result.response';
+import { PaginatedResultResponse } from '@libs/contracts/general/response';
 
 export type TGetUsersResponse = PaginatedResultResponse<{
   id: string;

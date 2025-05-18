@@ -19,8 +19,7 @@ import {
 import { Roles, User } from '../common/decorators';
 import { ApiGatewayAuthGuard } from '../common/guards/api-gateway-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { UpdateTweetGatewayDto } from './dto';
-import { PostTweetDto } from './dto/post-tweet.dto';
+import { PostTweetDto, UpdateTweetGatewayDto } from './dto';
 import { TweetsService } from './tweets.service';
 
 @Controller('/tweets')

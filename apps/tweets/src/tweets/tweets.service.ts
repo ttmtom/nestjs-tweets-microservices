@@ -1,7 +1,6 @@
 import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { PaginationDto } from '@libs/contracts/general/dto';
-import { UpdateTweetDto } from '@libs/contracts/tweets/dto';
-import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
+import { CreateTweetDto, UpdateTweetDto } from '@libs/contracts/tweets/dto';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Tweet } from '../database/entities';
 import { TweetsRepository } from './tweets.repository';

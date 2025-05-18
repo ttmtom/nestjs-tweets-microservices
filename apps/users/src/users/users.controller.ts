@@ -12,13 +12,13 @@ import {
 import {
   TGetByIdHashResponse,
   TGetByUsernameResponse,
+  TGetUserByIdResponse,
   TGetUsersResponse,
   TRegisterUserResponse,
   TRevertRegisterUserResponse,
   TSoftDeleteUserResponseDTO,
   TUpdateUserResponse,
 } from '@libs/contracts/users/response';
-import { TGetUserByIdResponse } from '@libs/contracts/users/response/get-username.response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { Controller, Logger, UseInterceptors } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';

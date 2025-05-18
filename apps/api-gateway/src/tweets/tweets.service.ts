@@ -14,18 +14,17 @@ import {
   TCreateTweetResponse,
   TGetTweetResponse,
   TGetTweetsResponse,
+  TSoftDeleteTweetResponse,
   TUpdateTweetResponse,
 } from '@libs/contracts/tweets/response';
-import { TSoftDeleteTweetResponse } from '@libs/contracts/tweets/response/soft-delete-tweet.response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
 import { GetUserByIdDto } from '@libs/contracts/users/dto';
-import { TGetUserByIdResponse } from '@libs/contracts/users/response/get-username.response';
+import { TGetUserByIdResponse } from '@libs/contracts/users/response';
 import { USERS_PATTERN } from '@libs/contracts/users/users.pattern';
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { sendEvent } from '../common/helper/send-event';
-import { UpdateTweetGatewayDto } from './dto';
-import { PostTweetDto } from './dto/post-tweet.dto';
+import { PostTweetDto, UpdateTweetGatewayDto } from './dto';
 
 @Injectable()
 export class TweetsService {

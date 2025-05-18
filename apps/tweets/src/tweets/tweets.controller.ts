@@ -2,19 +2,19 @@ import { ERROR_LIST } from '@libs/contracts/constants/error-list';
 import { PaginationDto } from '@libs/contracts/general/dto';
 import { EventResponseWrapperInterceptor } from '@libs/contracts/general/event-response-wrapper-interceptor';
 import {
+  CreateTweetDto,
   GetTweetDto,
   SoftDeleteTweetByAuthorDto,
   SoftDeleteTweetDto,
   UpdateTweetDto,
 } from '@libs/contracts/tweets/dto';
-import { CreateTweetDto } from '@libs/contracts/tweets/dto/create-tweet.dto';
 import {
   TCreateTweetResponse,
   TGetTweetResponse,
   TGetTweetsResponse,
+  TSoftDeleteTweetResponse,
   TUpdateTweetResponse,
 } from '@libs/contracts/tweets/response';
-import { TSoftDeleteTweetResponse } from '@libs/contracts/tweets/response/soft-delete-tweet.response';
 import { TWEETS_PATTERN } from '@libs/contracts/tweets/tweets.pattern';
 import {
   Controller,
