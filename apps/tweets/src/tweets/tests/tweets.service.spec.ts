@@ -98,7 +98,9 @@ describe('TweetsService', () => {
     it('should soft delete a tweet', async () => {
       const tweetId = 'tweet123';
       const tweet = new Tweet('Test Tweet', 'Content', 'user123');
-      (repository.findById as jest.Mock).mockResolvedValue(tweet);
+
+      jest.spyOn(service, 'getTweet').mockResolvedValue(tweet);
+
       (repository.save as jest.Mock).mockResolvedValue({
         ...tweet,
         deletedAt: expect.any(Date),
@@ -106,7 +108,7 @@ describe('TweetsService', () => {
 
       const result = await service.softDelete(tweetId);
 
-      expect(repository.findById).toHaveBeenCalledWith(tweetId);
+      expect(service.getTweet).toHaveBeenCalledWith(tweetId);
       expect(repository.save).toHaveBeenCalledWith(
         expect.objectContaining({
           deletedAt: expect.any(Date),

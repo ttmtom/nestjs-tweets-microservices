@@ -1,4 +1,4 @@
-import { nanoid } from 'nanoid';
+import ShortUniqueId from 'short-unique-id';
 import {
   Column,
   CreateDateColumn,
@@ -44,8 +44,10 @@ export class User {
     lastName: string,
     dateOfBirth: Date,
   ) {
+    const { randomUUID } = new ShortUniqueId({ length: 10 });
+
     this.id = uuidv4();
-    this.idHash = nanoid(10);
+    this.idHash = randomUUID(10);
     this.username = username;
     this.firstName = firstName;
     this.lastName = lastName;
