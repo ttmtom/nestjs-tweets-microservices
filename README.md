@@ -317,3 +317,10 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Improvement
+
+1. setup migration stage instead of docker start sql
+2. setup mq 
+3. setup microservice dockerfile for deployment
+ 
